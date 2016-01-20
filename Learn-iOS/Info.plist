@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleName</key>
-	<string>Learn</string>
 	<key>CFBundleIdentifier</key>
 	<string>io.tsinghua.Learn</string>
 	<key>CFBundleShortVersionString</key>
@@ -22,9 +20,9 @@
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
-	<string>MainStoryboard</string>
+	<string>Base.lproj/MainStoryboard</string>
 	<key>UIMainStoryboardFile~ipad</key>
-	<string>MainStoryboard</string>
+	<string>Base.lproj/MainStoryboard</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
@@ -49,5 +47,9 @@
 	<array>
 		<string>en</string>
 	</array>
+	<key>CFBundleDisplayName</key>
+	<string>学在清华</string>
+	<key>CFBundleName</key>
+	<string>学在清华</string>
 </dict>
 </plist>
