@@ -22,9 +22,9 @@
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
+	<string>MainStoryboard</string>
 	<key>UIMainStoryboardFile~ipad</key>
-	<string>Main</string>
+	<string>MainStoryboard</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
@@ -43,5 +43,11 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Resources/Images.xcassets/AppIcons.appiconset</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>zh-CN</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+	</array>
 </dict>
 </plist>

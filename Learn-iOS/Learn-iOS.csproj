@@ -85,7 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.xib" />
-    <InterfaceDefinition Include="Main.storyboard" />
+    <InterfaceDefinition Include="Base.lproj\MainStoryboard.storyboard" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -100,4 +100,11 @@
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Resources\en.lproj\" />
+    <Folder Include="Base.lproj\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\en.lproj\MainStoryboard.strings" />
+  </ItemGroup>
 </Project>

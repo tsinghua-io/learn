@@ -39,7 +39,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <tabBarItem key="tabBarItem" id="93" title="Homeworks"/>
+                    <tabBarItem key="tabBarItem" id="93" title="Deadlines"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="36" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -58,7 +58,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Me" id="100">
+                    <tabBarItem key="tabBarItem" title="我" id="100">
                         <accessibilityConfiguration key="accessibilityConfiguration">
                             <isElement key="isElement" value="NO"/>
                         </accessibilityConfiguration>
@@ -81,7 +81,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Courses" id="234">
+                    <tabBarItem key="tabBarItem" title="课程" id="234">
                         <accessibilityConfiguration key="accessibilityConfiguration">
                             <isElement key="isElement" value="NO"/>
                         </accessibilityConfiguration>
@@ -104,7 +104,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <tabBarItem key="tabBarItem" id="242" title="What's New">
+                    <tabBarItem key="tabBarItem" id="242" title="新鲜事">
                         <accessibilityConfiguration key="accessibilityConfiguration">
                             <isElement key="isElement" value="NO"/>
                         </accessibilityConfiguration>
