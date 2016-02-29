@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learn-iOS", "Learn-iOS\Lear
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learn-Android", "Learn-Android\Learn-Android.csproj", "{2DAA0689-E5EC-40ED-A0D4-817CFC100099}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learn-Console", "Learn-Console\Learn-Console.csproj", "{18C13316-8023-4B40-8C8A-C7E7222D803E}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Base", "Base\Base.shproj", "{D604A964-26ED-4541-924F-9031B8737349}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|iPhoneSimulator = Debug|iPhoneSimulator
@@ -13,6 +17,14 @@ Global
 		Debug|iPhone = Debug|iPhone
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{18C13316-8023-4B40-8C8A-C7E7222D803E}.Debug|iPhone.ActiveCfg = Debug|iPhoneSimulator
+		{18C13316-8023-4B40-8C8A-C7E7222D803E}.Debug|iPhone.Build.0 = Debug|iPhoneSimulator
+		{18C13316-8023-4B40-8C8A-C7E7222D803E}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{18C13316-8023-4B40-8C8A-C7E7222D803E}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{18C13316-8023-4B40-8C8A-C7E7222D803E}.Release|iPhone.ActiveCfg = Release|iPhoneSimulator
+		{18C13316-8023-4B40-8C8A-C7E7222D803E}.Release|iPhone.Build.0 = Release|iPhoneSimulator
+		{18C13316-8023-4B40-8C8A-C7E7222D803E}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{18C13316-8023-4B40-8C8A-C7E7222D803E}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
 		{2DAA0689-E5EC-40ED-A0D4-817CFC100099}.Debug|iPhone.ActiveCfg = Debug|Any CPU
 		{2DAA0689-E5EC-40ED-A0D4-817CFC100099}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{2DAA0689-E5EC-40ED-A0D4-817CFC100099}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
