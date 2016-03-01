@@ -20,7 +20,7 @@ namespace Base
 
 	public class APIWrapper
 	{
-		private const string personalInfoUrl = "/users/me";
+		private const string profileUrl = "/users/me";
 		private const string attendingUrl = "/users/me/attending";
 		private const string attendedUrl = "/users/me/attended";
 		private const string homeworksUrl = "/courses/{courseId}/homeworks";
@@ -42,8 +42,8 @@ namespace Base
 
 		}
 
-		public HttpStatusCode GetPersonalInfo (out string jsonString) =>
-			get (personalInfoUrl, out jsonString);
+		public HttpStatusCode GetProfile (out string jsonString) =>
+			get (profileUrl, out jsonString);
 
 
 		public HttpStatusCode GetAttending (out string jsonString) =>

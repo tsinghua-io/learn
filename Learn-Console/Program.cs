@@ -9,49 +9,46 @@ using Base;
 
 namespace LearnConsole
 {
+	public class CommonOptions {
+		[Option('u', "user", Required = true, HelpText = "The username.")]
+		public string User { get; set; }
+
+		[Option('p', "password", Required = true, HelpText = "The password.")]
+		public string Password { get; set; }
+
+		[Option('s', "server", HelpText = "The server address.", Default = "http://localhost")]
+		public string Server { get; set; }
+	}
+
     [Verb("update", HelpText = "Update all data.")]
-    public class UpdateOptions {}
+	public class UpdateOptions: CommonOptions {}
 
     [Verb("annc", HelpText = "Get all Announcements.")]
-    public class AnnouncementOptions 
+	public class AnnouncementOptions: CommonOptions
     {
-        [Value(0, MetaName = "course", HelpText = "Get Announcements of specific course.")]
+        [Value(0, Required = true, MetaName = "course", HelpText = "Get Announcements of specific course.")]
         public string Course { get; set; }
     }
 
     [Verb("file", HelpText = "Get all files.")]
-    public class FileOptions
+    public class FileOptions: CommonOptions
     {
-        [Value(0, MetaName = "course", HelpText = "Get files of specific course.")]
+        [Value(0, Required = true, MetaName = "course", HelpText = "Get files of specific course.")]
         public string Course { get; set; }
     }
 
     [Verb("hw", HelpText = "Get all homeworks.")]
-    public class HomeworkOptions
+    public class HomeworkOptions: CommonOptions
     {
-        [Value(0, MetaName = "course", HelpText = "Get homeworks of specific course.")]
+        [Value(0, Required = true, MetaName = "course", HelpText = "Get homeworks of specific course.")]
         public string Course { get; set; }
     }
 
     [Verb("profile", HelpText = "Get user profile.")]
-    public class ProfileOptions {}
-
-    // [Verb("info", HelpText = "Get information of attending courses.")]
-    // public class InfoOptions 
-    // {
-    //     [Option('a', "all", HelpText = "Get information of all courses.")]
-    //     public bool All { get; set; }
-    // }
-
-    // [Verb("ls", HelpText = "Get list of attending courses.")]
-    // public class LsOptions
-    // {
-    //     [Option('a', "all", HelpText = "Get list of all courses.")]
-    //     public bool All { get; set; }
-    // }
+    public class ProfileOptions: CommonOptions {}
 
     [Verb("attend", HelpText = "List of all courses.")]
-    public class AttendOptions
+    public class AttendOptions: CommonOptions
     {
     	[Option("semester", HelpText = "--semester=now: List of courses in this semester.")]
     	public string semester { get; set; }
@@ -60,36 +57,27 @@ namespace LearnConsole
     	public bool detail { get; set; }
     }
 
-    // public class Options
-    // {
-    // 	[Value(0)]
-    // 	public string Course { get; set; }
-    // }
-
 
     public class LearnConsole
     {
+		public static APIWrapper GetApiWrapper (CommonOptions options) 
+		{
+			LogInfo ("Using proxy server", options.Server);
+			return new APIWrapper (options.Server, options.User, options.Password);
+		}
+
         public static int Main(string[] args)
         {
-//			var url = "/user/123";
-//			var json = "{\"doc_id\":\"/user/123\",\"id\":\"123\",\"name\":\"gyl\",\"type\":\"undergraduate\",\"department\n\":\"ME\",\"class\":\"ME32\",\"gender\":\"male\",\"email\":\"sample@gmail.com\",\"phone\":\"188123\n456789\"}";
-//			var me = new User (url, json);
-//			Console.WriteLine (JsonConvert.SerializeObject (me));
-//			me.@class = "EE36";
-//			Console.WriteLine (JsonConvert.SerializeObject (me));
-            return Parser.Default.ParseArguments<
+			return Parser.Default.ParseArguments<
                 UpdateOptions, AnnouncementOptions, FileOptions,
-				HomeworkOptions, ProfileOptions, AttendOptions>(args).MapResult(
-                    (UpdateOptions opts) => Update(opts),
-                    (AnnouncementOptions opts) => Announcement(opts),
-                    (FileOptions opts) => File(opts),
-                    (HomeworkOptions opts) => Homework(opts),
-                    (ProfileOptions opts) => Profile(opts),
-                    (AttendOptions opts) => Attend(opts),
-                    // (InfoOptions opts) => Info(opts),
-                    // (LsOptions opts) => Ls(opts),
-                    // (Options opts) => News(opts),
-                    errs => 1);
+				HomeworkOptions, ProfileOptions, AttendOptions> (args).MapResult (
+				(UpdateOptions opts) => Update (opts),
+				(AnnouncementOptions opts) => Announcement (opts),
+				(FileOptions opts) => File (opts),
+				(HomeworkOptions opts) => Homework (opts),
+				(ProfileOptions opts) => Profile (opts),
+				(AttendOptions opts) => Attend (opts),
+				errs => 1);
         }
 
         public static int Update(UpdateOptions opts)
@@ -100,48 +88,38 @@ namespace LearnConsole
 
         public static int Announcement(AnnouncementOptions opts)
         {
-            if (opts.Course == null)
-            {
-                Console.WriteLine("Announcements of course: all");
-            }
-            else
-            {
-                Console.WriteLine("Announcements of course: {0}", opts.Course);
-
-            }
+			string jsonString;
+			var status = GetApiWrapper (opts).GetAnnoucements (opts.Course, out jsonString);
+			LogInfo (String.Format("Annoucements of course: {0}", opts.Course), 
+				String.Format("{0}: {1}", status, jsonString));
             return 0;
         }
 
         public static int File(FileOptions opts)
         {
-            if (opts.Course == null)
-            {
-                Console.WriteLine("Files of course: all");
-            }
-            else
-            {
-                Console.WriteLine("Files of course: {0}", opts.Course);
-            }
-            return 0;
+			string jsonString;
+			var status = GetApiWrapper (opts).GetFiles (opts.Course, out jsonString);
+			LogInfo (String.Format("Files of course: {0}", opts.Course), 
+				String.Format("{0}: {1}", status, jsonString));
+			return 0;
         }
 
         public static int Homework(HomeworkOptions opts)
         {
-            if (opts.Course == null)
-            {
-                Console.WriteLine("Homeworks of course: all");
-            }
-            else
-            {
-                Console.WriteLine("Homeworks of course: {0}", opts.Course);
-            }
-            return 0;
+			string jsonString;
+			var status = GetApiWrapper (opts).GetHomeworks (opts.Course, out jsonString);
+			LogInfo (String.Format("Homeworks of course: {0}", opts.Course), 
+				String.Format("{0}: {1}", status, jsonString));
+			return 0;
         }
 
         public static int Profile(ProfileOptions opts)
         {
-            Console.WriteLine("Profile command parsed.");
-            return 0;
+			string jsonString;
+			var status = GetApiWrapper (opts).GetProfile (out jsonString);
+			LogInfo (String.Format("Profile of user {0}", opts.User), 
+				String.Format("{0}: {1}", status, jsonString));
+			return 0;
         }
 
         public static int Attend(AttendOptions opts)
@@ -170,44 +148,12 @@ namespace LearnConsole
         	}
         	return 0;
         }
+			
+		public static void LogInfo(string title, string content)
+		{
+			Console.WriteLine (title + ":");
+			Console.WriteLine ("\t" + content);
+		}
 
-        // public static int Info(InfoOptions opts)
-        // {
-        //     if (opts.All)
-        //     {
-        //         Console.WriteLine("Information of all courses.");
-        //     }
-        //     else
-        //     {
-        //         Console.WriteLine("Information of attending courses.");
-        //     }
-        //     return 0;
-        // }
-
-        // public static int Ls(LsOptions opts)
-        // {
-        //     if (opts.All)
-        //     {
-        //         Console.WriteLine("List of all courses.");
-        //     }
-        //     else
-        //     {
-        //         Console.WriteLine("List of attending courses.");
-        //     }
-        //     return 0;
-        // }
-
-        // public static int News(Options opts)
-        // {
-        // 	if (opts.Course == null)
-        // 	{
-        // 		Console.WriteLine("News of course: all");
-        // 	}
-        // 	else 
-        // 	{
-        // 		Console.WriteLine("News of course: {0}", opts.Course);
-        // 	}
-        // 	return 0;
-        // }
     }
 }
