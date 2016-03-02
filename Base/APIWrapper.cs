@@ -28,7 +28,7 @@ namespace Base
 		private const string announcementsUrl = "/courses/{courseId}/announcements";
 
 		private RestClient client;
-		public Dictionary<string, string> CommonHeaders { get; set; } = new Dictionary<string, string>()
+		static public Dictionary<string, string> CommonHeaders = new Dictionary<string, string>()
 		{
 			{ "Accept", "application/json; charset=utf-8" },
 			{ "Accept-Encoding", "gzip, identity" },
@@ -42,28 +42,41 @@ namespace Base
 
 		}
 
-		public HttpStatusCode GetProfile (out string jsonString) =>
-			get (profileUrl, out jsonString);
+		public HttpStatusCode GetProfile (out string jsonString)
+		{ 
+			return get (profileUrl, out jsonString);
+		}
 
 
-		public HttpStatusCode GetAttending (out string jsonString) =>
-			get (attendingUrl, out jsonString);
+		public HttpStatusCode GetAttending (out string jsonString) 
+		{
+			return get (attendingUrl, out jsonString);
+		}
 
 
-		public HttpStatusCode GetAttended (out string jsonString) =>
-			get (attendedUrl, out jsonString);
+		public HttpStatusCode GetAttended (out string jsonString)
+		{
+			return get (attendedUrl, out jsonString);
+		}
 
-		public HttpStatusCode GetHomeworks (string courseId, out string jsonString) =>
-			get (homeworksUrl, out jsonString, new Dictionary<string, string>() {{"courseId", courseId}});
+		public HttpStatusCode GetHomeworks (string courseId, out string jsonString) 
+		{
+			return get (homeworksUrl, out jsonString, new Dictionary<string, string>() {{"courseId", courseId}});
+		}
 
-		public HttpStatusCode GetFiles (string courseId, out string jsonString) =>
-			get (filesUrl, out jsonString, new Dictionary<string, string>() {{"courseId", courseId}});
+		public HttpStatusCode GetFiles (string courseId, out string jsonString) 
+		{
+			return get (filesUrl, out jsonString, new Dictionary<string, string>() {{"courseId", courseId}});
+		}
 
-		public HttpStatusCode GetAnnoucements (string courseId, out string jsonString) =>
-			get (announcementsUrl, out jsonString, new Dictionary<string, string>() {{"courseId", courseId}});
+		public HttpStatusCode GetAnnoucements (string courseId, out string jsonString) 
+		{
+			return get (announcementsUrl, out jsonString, new Dictionary<string, string>() {{"courseId", courseId}});
+		}
 
 		private HttpStatusCode get (string path, out string jsonString, 
-			Dictionary<string, string> segs = null) {
+			Dictionary<string, string> segs = null) 
+		{
 			var request = new RestRequest(path, Method.GET);
 
 			if (segs != null) {
