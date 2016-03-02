@@ -124,28 +124,17 @@ namespace LearnConsole
 
         public static int Attend(AttendOptions opts)
         {
-        	if (opts.semester == null)
-        	{
-        		if (opts.detail)
-        		{
-        			Console.WriteLine("Detailed information of all courses.");
-        		}
-        		else 
-        		{
-        			Console.WriteLine("List of all courses.");
-        		}
-        	}
-        	else if (opts.semester == "now") 
-        	{
-        		if (opts.detail)
-        		{
-        			Console.WriteLine("Detailed information of all courses in this semester.");
-        		}
-        		else 
-        		{
-        			Console.WriteLine("List of all courses in this semester.");
-        		}
-        	}
+			string jsonString;
+			string semester = opts.semester ?? "all";
+			var status = GetApiWrapper (opts).GetAttended (semester, out jsonString);
+        	
+			if (!opts.detail) {
+				// Only show the id and name of courses
+				Console.Write("Non-detail not implemented now.");
+			} else {
+				LogInfo (String.Format("Profile of user {0}", opts.User), 
+					String.Format("{0}: {1}", status, jsonString));
+			}
         	return 0;
         }
 			

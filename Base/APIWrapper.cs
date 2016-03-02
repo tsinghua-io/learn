@@ -21,7 +21,6 @@ namespace Base
 	public class APIWrapper
 	{
 		private const string profileUrl = "/users/me";
-		private const string attendingUrl = "/users/me/attending";
 		private const string attendedUrl = "/users/me/attended";
 		private const string homeworksUrl = "/courses/{courseId}/homeworks";
 		private const string filesUrl = "/courses/{courseId}/files";
@@ -39,24 +38,17 @@ namespace Base
 		{
 			client = new RestClient (baseUrl);
 			client.Authenticator = new HttpBasicAuthenticator (userName, password);
-
 		}
 
 		public HttpStatusCode GetProfile (out string jsonString)
 		{ 
 			return get (profileUrl, out jsonString);
 		}
+			
 
-
-		public HttpStatusCode GetAttending (out string jsonString) 
+		public HttpStatusCode GetAttended (string semester, out string jsonString)
 		{
-			return get (attendingUrl, out jsonString);
-		}
-
-
-		public HttpStatusCode GetAttended (out string jsonString)
-		{
-			return get (attendedUrl, out jsonString);
+			return get (attendedUrl, out jsonString, queries:new Dictionary<string, string>() {{"semester", semester}});
 		}
 
 		public HttpStatusCode GetHomeworks (string courseId, out string jsonString) 
@@ -75,13 +67,19 @@ namespace Base
 		}
 
 		private HttpStatusCode get (string path, out string jsonString, 
-			Dictionary<string, string> segs = null) 
+			Dictionary<string, string> segs = null, Dictionary<string, string> queries = null) 
 		{
 			var request = new RestRequest(path, Method.GET);
 
 			if (segs != null) {
 				foreach (var seg in segs) {
 					request.AddUrlSegment (seg.Key, seg.Value.Trim ());
+				}
+			}
+
+			if (queries != null) {
+				foreach (var query in queries) {
+					request.AddQueryParameter (query.Key, query.Value.Trim ());
 				}
 			}
 
