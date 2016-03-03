@@ -1,54 +1,131 @@
 using System;
+using System.Text;
+using System.Linq;
+using System.Reflection;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Base
 {
-	public class User
+	public static class ResourceExtensionMethods
+	{
+
+		public static string ToStr (this IEnumerable resources)
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (var resource in resources) {
+				sb.AppendLine ("-----------------");
+				sb.Append (resource.ToString ());
+			}
+			sb.AppendLine ("-----------------");
+			return sb.ToString ();
+		}
+
+		public static string AddTabEachLine (this string str)
+		{
+			return str.Trim().Split ('\n').Select (s => "\t" + s).Aggregate ((i, j) => i + "\n" + j) + "\n";
+		}
+	}
+
+	public class ResourceBase {
+		public override string ToString ()
+		{
+			StringBuilder sb = new StringBuilder();
+			Type type = this.GetType();
+			foreach (var p in type.GetProperties()) {
+				var value = p.GetValue (this);
+				if (value != null) {
+					string valueStr = value.ToString();
+					//Console.WriteLine (valueStr);
+					if (value.GetType ().IsGenericType) {
+						var valueEnum = value as IEnumerable;
+						valueStr = valueEnum.ToStr ();
+					}
+					sb.AppendFormat ("{0}:\n{1}\n", p.Name, valueStr.AddTabEachLine());
+				}
+			}
+			return sb.ToString ();	
+		}
+
+		public Dictionary<string, object> ToDict () {
+			Type type = this.GetType();
+			var dict = new Dictionary<string, object> ();
+
+			foreach (var p in type.GetProperties()) {
+				var value = p.GetValue (this);
+				if (value != null) {
+					if (value.GetType ().IsGenericType) {
+						var valueEnum = value as IEnumerable;
+						var valueobj = new List<object> ();
+						foreach (var v in valueEnum) {
+							var resource = v as ResourceBase;
+							if (resource != null) {
+								valueobj.Add (resource.ToDict ());
+							} else {
+								valueobj.Add (v);
+							}
+						}
+						dict [p.Name] = valueobj;
+					}  else {
+						var resource = value as ResourceBase;
+						if (resource != null) {
+							dict [p.Name] = resource.ToDict ();
+						} else {
+							dict [p.Name] = value;
+						}
+					}
+				}
+			}
+			return dict;
+		}
+	}
+
+	public class User: ResourceBase
     {        
-		public string id;
-		public string name;
-		public string type;
-		public string department;
-		public string @class;
-		public string gender;
-		public string email;
-		public string phone;
+		public string Id { get; set; }
+		public string Name { get; set; }
+		public string Type { get; set; }
+		public string Department { get; set; }
+		public string Class { get; set; }
+		public string Gender { get; set; }
+		public string Email { get; set; }
+		public string Phone { get; set; }
     }
 
-    public class TimeLocation
+    public class TimeLocation: ResourceBase
     {
-        public string weeks;
-        public int day_of_week;
-        public int period_of_day;
-        public string location;
+		public string Weeks { get; set; }
+		public int Day_of_week { get; set; }
+		public int Period_of_day { get; set; }
+		public string Location { get; set; }
     }
 
-    public class Course
+    public class Course: ResourceBase
     {
         // Identifiers.
-        public string id;
-        public string semester;
-        public string course_number;
-        public string course_sequence;
+		public string Id { get; set; }
+		public string Semester { get; set; }
+		public string Course_number { get; set; }
+		public string Course_sequence { get; set; }
 
         // Metadata.
-        public string name;
-        public int credit;
-        public int hour;
-        public string description;
+		public string Name { get; set; }
+		public int Credit { get; set; }
+		public int Hour { get; set; }
+		public string Description { get; set; }
 
         // Time & location.
-        public TimeLocation [] time_locations;
+		public List<TimeLocation> Time_locations { get; set; }
 
         // Staff.
-		public User [] teachers;
-		public User [] assistants;
+		public List<User> Teachers { get; set; }
+		public List<User> Assistants { get; set; }
     }
 
     public class Announcement
     {
         // Identifiers.
-        public string id;
+		public string id;
         public string course_id;
 
         // Metadata.

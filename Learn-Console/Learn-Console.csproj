@@ -56,6 +56,7 @@
     <Reference Include="RestSharp">
       <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

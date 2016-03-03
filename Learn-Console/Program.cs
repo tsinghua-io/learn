@@ -66,6 +66,12 @@ namespace LearnConsole
 			return new APIWrapper (options.Server, options.User, options.Password);
 		}
 
+		public static ClientAgent GetClientAgent (CommonOptions options)
+		{
+			LogInfo ("Using proxy server", options.Server);
+			return new ClientAgent (options.Server, options.User, options.Password);
+		}
+
         public static int Main(string[] args)
         {
 			return Parser.Default.ParseArguments<
@@ -115,27 +121,34 @@ namespace LearnConsole
 
         public static int Profile(ProfileOptions opts)
         {
-			string jsonString;
-			var status = GetApiWrapper (opts).GetProfile (out jsonString);
-			LogInfo (String.Format("Profile of user {0}", opts.User), 
-				String.Format("{0}: {1}", status, jsonString));
+			var user = GetClientAgent (opts).GetProfile ();
+			LogInfo (String.Format ("Profile of user {0}", opts.User), user.ToString());
+				
 			return 0;
         }
 
         public static int Attend(AttendOptions opts)
         {
-			string jsonString;
 			string semester = opts.semester ?? "all";
-			var status = GetApiWrapper (opts).GetAttended (semester, out jsonString);
+			var courses = GetClientAgent (opts).GetAttended (semester);
         	
 			if (!opts.detail) {
 				// Only show the id and name of courses
-				Console.Write("Non-detail not implemented now.");
+				Console.WriteLine ("Courses of user {0}:", opts.User);
+				foreach (var course in courses) {
+					LogInfo (course.Id, course.Name);
+				}
+				
 			} else {
-				LogInfo (String.Format("Profile of user {0}", opts.User), 
-					String.Format("{0}: {1}", status, jsonString));
+				if (courses != null) {
+					Console.WriteLine (courses.ToStr ());
+				} else {
+					Console.WriteLine ("null!");
+				}
 			}
         	return 0;
+
+
         }
 			
 		public static void LogInfo(string title, string content)

@@ -11,5 +11,6 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)APIWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ClientAgent.cs" />
   </ItemGroup>
 </Project>
