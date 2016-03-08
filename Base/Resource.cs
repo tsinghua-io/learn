@@ -4,11 +4,14 @@ using Couchbase.Lite;
 
 namespace Base
 {
+    public static class Globals
+    {
+        public static Manager manager = Manager.SharedInstance;
+        public static Database database = manager.GetDatabase("learn");
+    }
+
     public class ResourceBase
     {
-        protected static Manager manager = Manager.SharedInstance;
-        protected static Database database = manager.GetDatabase("learn");
-
         public static TValue GetValueOrDefault<TValue> (IDictionary<string, object> dictionary, string key, TValue defaultValue)
         {
             object val;
@@ -29,7 +32,7 @@ namespace Base
 		public abstract string Name { get; }
 		public abstract string Type { get; }
 		public abstract string Department { get; }
-		public abstract string @Class { get; }
+		public abstract string Class { get; }
 		public abstract string Gender { get; }
 		public abstract string Email { get; }
 		public abstract string Phone { get; }
@@ -46,7 +49,7 @@ namespace Base
             else
             {
                 // Id detected, write to the database.
-                var doc = database.GetDocument("user/" + (string)id);
+                var doc = Globals.database.GetDocument("user/" + (string)id);
                 doc.Update((UnsavedRevision newRevision) =>
                 {
                     var properties = newRevision.Properties;
@@ -78,7 +81,7 @@ namespace Base
 
         private object GetAttribute (string attribute)
         {
-            var doc = database.GetExistingDocument("user/" + Id);
+            var doc = Globals.database.GetExistingDocument("user/" + Id);
             var val = doc.GetProperty(attribute);
             return val == null ? "" : val;
         }
@@ -217,7 +220,7 @@ namespace Base
 
             // Save to the document.
             var id = vals["id"];
-            var doc = database.GetDocument("course/" + (string)id);
+            var doc = Globals.database.GetDocument("course/" + (string)id);
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
@@ -280,7 +283,7 @@ namespace Base
 
             // Save to the document.
             var id = vals["id"];
-            var doc = database.GetDocument("announcement/" + (string)id);
+            var doc = Globals.database.GetDocument("announcement/" + (string)id);
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
@@ -349,7 +352,7 @@ namespace Base
 
             // Save to the document.
             var id = vals["id"];
-            var doc = database.GetDocument("file/" + (string)id);
+            var doc = Globals.database.GetDocument("file/" + (string)id);
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
@@ -455,7 +458,7 @@ namespace Base
             var homeworkId = vals["homework_id"];
             var owner = (Dictionary<string, object>)vals["owner"];
             var ownerId = owner["id"];
-            var doc = database.GetDocument("file/" + (string)homeworkId + (string)ownerId);
+            var doc = Globals.database.GetDocument("file/" + (string)homeworkId + (string)ownerId);
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
@@ -528,7 +531,7 @@ namespace Base
             // Save to the document.
             // Save to the document.
             var id = vals["id"];
-            var doc = database.GetDocument("homework/" + (string)id);
+            var doc = Globals.database.GetDocument("homework/" + (string)id);
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
