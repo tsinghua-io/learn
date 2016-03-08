@@ -7,10 +7,9 @@ namespace Base
     public static class Globals
     {
         public static Manager manager = Manager.SharedInstance;
-        public static Database database = manager.GetDatabase("learn");
     }
 
-    public class ResourceBase
+    public abstract class ResourceBase
     {
         public static TValue GetValueOrDefault<TValue> (IDictionary<string, object> dictionary, string key, TValue defaultValue)
         {
@@ -27,8 +26,10 @@ namespace Base
     }
 
 	public abstract class User: ResourceBase
-    {        
-		public abstract string Id { get; }
+    {
+        public static Database database = Globals.manager.GetDatabase("users");
+
+        public abstract string Id { get; }
 		public abstract string Name { get; }
 		public abstract string Type { get; }
 		public abstract string Department { get; }
@@ -49,7 +50,7 @@ namespace Base
             else
             {
                 // Id detected, write to the database.
-                var doc = Globals.database.GetDocument("user/" + (string)id);
+                var doc = database.GetDocument(id);
                 doc.Update((UnsavedRevision newRevision) =>
                 {
                     var properties = newRevision.Properties;
@@ -65,13 +66,13 @@ namespace Base
     public class SyncedUser: User
     {
         public override string Id { get; }
-        public override string Name => (string)GetAttribute("name"); 
-        public override string Type => (string)GetAttribute("type"); 
-        public override string Department => (string)GetAttribute("department"); 
-        public override string Class => (string)GetAttribute("class"); 
-        public override string Gender => (string)GetAttribute("gender"); 
-        public override string Email => (string)GetAttribute("email"); 
-        public override string Phone => (string)GetAttribute("phone"); 
+        public override string Name => GetAttributeOrDefault("name", ""); 
+        public override string Type => GetAttributeOrDefault("type", ""); 
+        public override string Department => GetAttributeOrDefault("department", ""); 
+        public override string Class => GetAttributeOrDefault("class", ""); 
+        public override string Gender => GetAttributeOrDefault("gender", ""); 
+        public override string Email => GetAttributeOrDefault("email", ""); 
+        public override string Phone => GetAttributeOrDefault("phone", ""); 
 
         public SyncedUser (Dictionary<string, object> vals)
         {
@@ -79,11 +80,11 @@ namespace Base
             Id = (string)vals["id"];
         }
 
-        private object GetAttribute (string attribute)
+        private TValue GetAttributeOrDefault <TValue> (string attribute, TValue defaultValue)
         {
-            var doc = Globals.database.GetExistingDocument("user/" + Id);
-            var val = doc.GetProperty(attribute);
-            return val == null ? "" : val;
+            var doc = database.GetExistingDocument(Id);
+            var properties = doc.Properties;
+            return GetValueOrDefault(properties, attribute, defaultValue);
         }
     }
 
@@ -133,69 +134,72 @@ namespace Base
 
     public class Course: ResourceBase
     {
+        public static Database database = Globals.manager.GetDatabase("courses");
+
         // Identifiers.
-        public string Id;
-        public string Semester;
-        public string CourseNumber;
-        public string CourseSequence;
+        public string Id { get; }
+        public string Semester => GetAttributeOrDefault("semester", "");
+        public string CourseNumber => GetAttributeOrDefault("course_number", "");
+        public string CourseSequence => GetAttributeOrDefault("course_sequence", "");
 
         // Metadata.
-        public string Name;
-        public int Credit;
-        public int Hour;
-        public string Description;
+        public string Name => GetAttributeOrDefault("name", "");
+        public int Credit => GetAttributeOrDefault("credit", 0);
+        public int Hour => GetAttributeOrDefault("hour", 0);
+        public string Description => GetAttributeOrDefault("description", "");
 
         // Time & location.
-        public List<TimeLocation> TimeLocations;
+        public List<TimeLocation> TimeLocations
+        {
+            get
+            {
+                var time_locations = new List<TimeLocation>();
+                var list = GetAttributeOrDefault("time_locations", new List<object>());
+                list.ForEach(item => time_locations.Add(new TimeLocation((Dictionary<string, object>)item)));
+                return time_locations;
+            }
+        }
 
         // Staff.
-		public List<User> Teachers;
-		public List<User> Assistants;
-
-        public Course (Dictionary<string, object> vals)
+		public List<User> Teachers
         {
-            Id = GetValueOrDefault(vals, "id", "");
-            Semester = GetValueOrDefault(vals, "semester", "");
-            CourseNumber = GetValueOrDefault(vals, "course_number", "");
-            CourseSequence = GetValueOrDefault(vals, "course_sequence", "");
-            Name = GetValueOrDefault(vals, "name", "");
-            Credit = GetValueOrDefault(vals, "credit", 0);
-            Hour = GetValueOrDefault(vals, "hour", 0);
-            Description = GetValueOrDefault(vals, "description", "");
-
-            TimeLocations = new List<TimeLocation>();
-            object val;
-            if (vals.TryGetValue("time_locations", out val))
+            get
             {
-                var list = (List<object>)val;
-                list.ForEach(item => TimeLocations.Add(new TimeLocation((Dictionary<string, object>)item)));
-            }
-
-            Teachers = new List<User>();
-            if (vals.TryGetValue("teachers", out val))
-            {
-                var list = (List<object>)val;
+                var teachers = new List<User>();
+                var doc = database.GetExistingDocument(Id);
+                var list = GetAttributeOrDefault("teachers", new List<object>());
                 foreach (object teacher in list)
                 {
                     var dict = (Dictionary<string, object>)teacher;
                     var id = GetValueOrDefault(dict, "id", "");
-                    if ((string)id == "") { Teachers.Add(new AsyncedUser(dict)); }
-                    else { Teachers.Add(new SyncedUser(dict)); }
+                    if (id == "") { teachers.Add(new AsyncedUser(dict)); }
+                    else { teachers.Add(new SyncedUser(dict)); }
                 }
+                return teachers;
             }
+        }
 
-            Assistants = new List<User>();
-            if (vals.TryGetValue("assistants", out val))
+        public List<User> Assistants
+        {
+            get
             {
-                var list = (List<object>)val;
+                var assistants = new List<User>();
+                var doc = database.GetExistingDocument(Id);
+                var list = GetAttributeOrDefault("assistants", new List<object>());
                 foreach (object assistant in list)
                 {
                     var dict = (Dictionary<string, object>)assistant;
                     var id = GetValueOrDefault(dict, "id", "");
-                    if (id == "") { Assistants.Add(new AsyncedUser(dict)); }
-                    else { Assistants.Add(new SyncedUser(dict)); }
+                    if (id == "") { assistants.Add(new AsyncedUser(dict)); }
+                    else { assistants.Add(new SyncedUser(dict)); }
                 }
+                return assistants;
             }
+        }
+
+        public Course (Dictionary<string, object> vals)
+        {
+            Id = (string)vals["id"];
         }
 
         public static Dictionary<string, object> ResolveNewData (Dictionary<string, object> vals)
@@ -220,7 +224,7 @@ namespace Base
 
             // Save to the document.
             var id = vals["id"];
-            var doc = Globals.database.GetDocument("course/" + (string)id);
+            var doc = database.GetDocument((string)id);
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
@@ -229,48 +233,46 @@ namespace Base
             });
 
             return vals;
+        }
+
+        private TValue GetAttributeOrDefault<TValue>(string attribute, TValue defaultValue)
+        {
+            var doc = database.GetExistingDocument(Id);
+            var properties = doc.Properties;
+            return GetValueOrDefault(properties, attribute, defaultValue);
         }
     }
 
     public class Announcement: ResourceBase
     {
+        public static Database database = Globals.manager.GetDatabase("announcements");
+
         // Identifiers.
-        public string Id;
-        public string CourseId;
+        public string Id { get; }
+        public string CourseId => GetAttributeOrDefault("course_id", "");
 
         // Metadata.
-		public User Owner;
-        public string CreatedAt;
-        public int Priority;
-        public bool Read;
+		public User Owner
+        {
+            get
+            {
+                var dict = GetAttributeOrDefault("owner", new Dictionary<string, object>());
+                var id = GetValueOrDefault(dict, "id", "");
+                if (id == "") { return new AsyncedUser(dict); }
+                else { return new SyncedUser(dict); }
+            }
+        }
+        public string CreatedAt => GetAttributeOrDefault("created_at", "");
+        public int Priority => GetAttributeOrDefault("priority", 0);
+        public bool Read => GetAttributeOrDefault("read", false);
 
         // Content.
-        public string Title;
-        public string Body;
+        public string Title => GetAttributeOrDefault("title", "");
+        public string Body => GetAttributeOrDefault("body", "");
 
         public Announcement (Dictionary<string, object> vals)
         {
-            Id = GetValueOrDefault(vals, "id", "");
-            CourseId = GetValueOrDefault(vals, "course_id", "");
-            CreatedAt = GetValueOrDefault(vals, "created_at", "");
-            Priority = GetValueOrDefault(vals, "priority", 0);
-            Read = GetValueOrDefault(vals, "read", false);
-            Title = GetValueOrDefault(vals, "title", "");
-            Body = GetValueOrDefault(vals, "body", "");
-
-            object val;
-            if (!vals.TryGetValue("owner", out val))
-            {
-                // No owner.
-                Owner = new AsyncedUser();
-            }
-            else
-            {
-                var dict = (Dictionary<string, object>)val;
-                var id = GetValueOrDefault(dict, "id", "");
-                if ((string)id == "") { Owner = new AsyncedUser(dict); }
-                else { Owner = new SyncedUser(dict); }
-            }
+            Id = (string)vals["id"];
         }
 
         public static Dictionary<string, object> ResolveNewData (Dictionary<string, object> vals)
@@ -283,7 +285,7 @@ namespace Base
 
             // Save to the document.
             var id = vals["id"];
-            var doc = Globals.database.GetDocument("announcement/" + (string)id);
+            var doc = database.GetDocument((string)id);
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
@@ -292,54 +294,49 @@ namespace Base
             });
 
             return vals;
+        }
+
+        private TValue GetAttributeOrDefault<TValue>(string attribute, TValue defaultValue)
+        {
+            var doc = database.GetExistingDocument(Id);
+            var properties = doc.Properties;
+            return GetValueOrDefault(properties, attribute, defaultValue);
         }
     }
 
     public class File: ResourceBase
     {
+        public static Database database = Globals.manager.GetDatabase("files");
+
         // Identifiers.
-        public string Id;
-        public string CourseId;
+        public string Id { get; }
+        public string CourseId => GetAttributeOrDefault("course_id", "");
 
         // Metadata.
-		public User Owner;
-        public string CreatedAt;
-        public string Title;
-        public string Description;
-        public List<string> Category;
-        public bool Read;
+		public User Owner
+        {
+            get
+            {
+                var dict = GetAttributeOrDefault("owner", new Dictionary<string, object>());
+                var id = GetValueOrDefault(dict, "id", "");
+                if (id == "") { return new AsyncedUser(dict); }
+                else { return new SyncedUser(dict); }
+            }
+        }
+        public string CreatedAt => GetAttributeOrDefault("created_at", "");
+        public string Title => GetAttributeOrDefault("title", "");
+        public string Description => GetAttributeOrDefault("description", "");
+        public List<string> Category => GetAttributeOrDefault("category", new List<string>());
+        public bool Read => GetAttributeOrDefault("read", false);
 
         // Content.
-        public string Filename;
-        public int Size;
-        public string DownloadUrl;
+        public string Filename => GetAttributeOrDefault("filename", "");
+        public int Size => GetAttributeOrDefault("size", 0);
+        public string DownloadUrl => GetAttributeOrDefault("download_url", "");
 
         public File (Dictionary<string, object> vals)
         {
-            Id = GetValueOrDefault(vals, "id", "");
-            CourseId = GetValueOrDefault(vals, "course_id", "");
-            CreatedAt = GetValueOrDefault(vals, "created_at", "");
-            Title = GetValueOrDefault(vals, "title", "");
-            Description = GetValueOrDefault(vals, "description", "");
-            Category = (List<string>)GetValueOrDefault(vals, "category", new List<string>());
-            Read = GetValueOrDefault(vals, "read", false);
-            Filename = GetValueOrDefault(vals, "filename", "");
-            Size = GetValueOrDefault(vals, "size", 0);
-            DownloadUrl = GetValueOrDefault(vals, "download_url", "");
-
-            object val;
-            if (!vals.TryGetValue("owner", out val))
-            {
-                // No owner.
-                Owner = new AsyncedUser();
-            }
-            else
-            {
-                var dict = (Dictionary<string, object>)val;
-                var id = GetValueOrDefault(dict, "id", "");
-                if ((string)id == "") { Owner = new AsyncedUser(dict); }
-                else { Owner = new SyncedUser(dict); }
-            }
+            Id = (string)vals["id"];
         }
 
         public static Dictionary<string, object> ResolveNewData (Dictionary<string, object> vals)
@@ -352,7 +349,7 @@ namespace Base
 
             // Save to the document.
             var id = vals["id"];
-            var doc = Globals.database.GetDocument("file/" + (string)id);
+            var doc = database.GetDocument((string)id);
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
@@ -361,6 +358,13 @@ namespace Base
             });
 
             return vals;
+        }
+
+        private TValue GetAttributeOrDefault<TValue>(string attribute, TValue defaultValue)
+        {
+            var doc = database.GetExistingDocument(Id);
+            var properties = doc.Properties;
+            return GetValueOrDefault(properties, attribute, defaultValue);
         }
     }
 
@@ -382,63 +386,52 @@ namespace Base
 
     public class Submission: ResourceBase
     {
+        public static Database database = Globals.manager.GetDatabase("submissions");
+
         // Identifier.
-        public string HomeworkId;
+        public string HomeworkId { get; }
+        public string OwnerId { get; }
 
         // Metadata.
-		public User Owner;
-        public string CreatedAt;
-        public bool Late;
+		public User Owner
+        {
+            get
+            {
+                var dict = GetAttributeOrDefault("owner", new Dictionary<string, object>());
+                var id = GetValueOrDefault(dict, "id", "");
+                if (id == "") { return new AsyncedUser(dict); }
+                else { return new SyncedUser(dict); }
+            }
+        }
+        public string CreatedAt => GetAttributeOrDefault("created_at", "");
+        public bool Late => GetAttributeOrDefault("late", false);
 
         // Content.
-        public string Body;
-		public Attachment Attachment;
+        public string Body => GetAttributeOrDefault("body", "");
+		public Attachment Attachment => GetAttributeOrDefault("attachment", new Attachment(new Dictionary<string, object>()));
 
         // Scoring metadata.
-		public User MarkedBy;
-        public string MarkedAt;
+		public User MarkedBy
+        {
+            get
+            {
+                var dict = GetAttributeOrDefault("marked_by", new Dictionary<string, object>());
+                var id = GetValueOrDefault(dict, "id", "");
+                if (id == "") { return new AsyncedUser(dict); }
+                else { return new SyncedUser(dict); }
+            }
+        }
+        public string MarkedAt => GetAttributeOrDefault("marked_at", "");
 
         // Scoring content.
-		public double Mark;
-        public string Comment;
-		public Attachment CommentAttachment;
+		public double Mark => GetAttributeOrDefault("mark", 0);
+        public string Comment => GetAttributeOrDefault("comment", "");
+		public Attachment CommentAttachment => GetAttributeOrDefault("comment_attachment", new Attachment(new Dictionary<string, object>()));
 
         public Submission (Dictionary<string, object> vals)
         {
-            HomeworkId = GetValueOrDefault(vals, "homework_id", "");
-            CreatedAt = GetValueOrDefault(vals, "created_at", "");
-            Late = GetValueOrDefault(vals, "late", false);
-            Body = GetValueOrDefault(vals, "body", "");
-            MarkedAt = GetValueOrDefault(vals, "marked_at", "");
-            Mark = GetValueOrDefault(vals, "mark", 0);
-            Comment = GetValueOrDefault(vals, "comment", "");
-            Attachment = new Attachment(GetValueOrDefault(vals, "attachment", new Dictionary<string, object>()));
-            CommentAttachment = new Attachment(GetValueOrDefault(vals, "comment_attachment", new Dictionary<string, object>()));
-
-            object val;
-            if (!vals.TryGetValue("owner", out val))
-            {
-                Owner = new AsyncedUser();
-            }
-            else
-            {
-                var dict = (Dictionary<string, object>)val;
-                var id = GetValueOrDefault(dict, "id", "");
-                if ((string)id == "") { Owner = new AsyncedUser(dict); }
-                else { Owner = new SyncedUser(dict); }
-            }
-
-            if (!vals.TryGetValue("marked_by", out val))
-            {
-                MarkedBy = new AsyncedUser();
-            }
-            else
-            {
-                var dict = (Dictionary<string, object>)val;
-                var id = GetValueOrDefault(dict, "id", "");
-                if ((string)id == "") { MarkedBy = new AsyncedUser(dict); }
-                else { MarkedBy = new SyncedUser(dict); }
-            }
+            HomeworkId = (string)vals["homework_id"];
+            OwnerId = (string)vals["owner_id"];
         }
 
         public static Dictionary<string, object> ResolveNewData (Dictionary<string, object> vals)
@@ -456,9 +449,8 @@ namespace Base
 
             // Save to the document.
             var homeworkId = vals["homework_id"];
-            var owner = (Dictionary<string, object>)vals["owner"];
-            var ownerId = owner["id"];
-            var doc = Globals.database.GetDocument("file/" + (string)homeworkId + (string)ownerId);
+            var ownerId = vals["owner_id"];
+            var doc = database.GetDocument((string)homeworkId + (string)ownerId);
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
@@ -468,53 +460,52 @@ namespace Base
 
             return vals;
         }
+
+        private TValue GetAttributeOrDefault<TValue>(string attribute, TValue defaultValue)
+        {
+            var doc = database.GetExistingDocument(HomeworkId + OwnerId);
+            var properties = doc.Properties;
+            return GetValueOrDefault(properties, attribute, defaultValue);
+        }
     }
 
     public class Homework: ResourceBase
     {
+        public static Database database = Globals.manager.GetDatabase("homeworks");
+
         // Identifiers.
-        public string Id;
-        public string CourseId;
+        public string Id { get; }
+        public string CourseId => GetAttributeOrDefault("course_id", "");
 
         // Metadata.
-        public string CreatedAt;
-        public string BeginAt;
-        public string DueAt;
-        public int SubmittedCount;
-        public int NotSubmittedCount;
-        public int SeenCount;
-        public int MarkedCount;
+        public string CreatedAt => GetAttributeOrDefault("created_at", "");
+        public string BeginAt => GetAttributeOrDefault("begin_at", "");
+        public string DueAt => GetAttributeOrDefault("due_at", "");
+        public int SubmittedCount => GetAttributeOrDefault("submitted_count", 0);
+        public int NotSubmittedCount => GetAttributeOrDefault("not_submitted_count", 0);
+        public int SeenCount => GetAttributeOrDefault("seen_count", 0);
+        public int MarkedCount => GetAttributeOrDefault("marked_count", 0);
 
         // Content.
-        public string Title;
-        public string Body;
-		public Attachment Attachment;
+        public string Title => GetAttributeOrDefault("title", "");
+        public string Body => GetAttributeOrDefault("body", "");
+		public Attachment Attachment => GetAttributeOrDefault("attachment", new Attachment(new Dictionary<string, object>()));
 
         // Submissions.
-		public List<Submission> Submissions;
+		public List<Submission> Submissions
+        {
+            get
+            {
+                var submissions = new List<Submission>();
+                var list = GetAttributeOrDefault("submissions", new List<object>());
+                list.ForEach(submission => submissions.Add(new Submission((Dictionary<string, object>)submission)));
+                return submissions;
+            }
+        }
 
         public Homework(Dictionary<string, object> vals)
         {
             Id = GetValueOrDefault(vals, "id", "");
-            CourseId = GetValueOrDefault(vals, "course_id", "");
-            CreatedAt = GetValueOrDefault(vals, "created_at", "");
-            BeginAt = GetValueOrDefault(vals, "begin_at", "");
-            DueAt = GetValueOrDefault(vals, "due_at", "");
-            SubmittedCount = GetValueOrDefault(vals, "submitted_count", 0);
-            NotSubmittedCount = GetValueOrDefault(vals, "not_submitted_count", 0);
-            SeenCount = GetValueOrDefault(vals, "seen_count", 0);
-            MarkedCount = GetValueOrDefault(vals, "marked_count", 0);
-            Title = GetValueOrDefault(vals, "title", "");
-            Body = GetValueOrDefault(vals, "body", "");
-            Attachment = new Attachment(GetValueOrDefault(vals, "attachment", new Dictionary<string, object>()));
-
-            Submissions = new List<Submission>();
-            object val;
-            if (vals.TryGetValue("submissions", out val))
-            {
-                var list = (List<object>)val;
-                list.ForEach(submission => Submissions.Add(new Submission((Dictionary<string, object>)submission)));
-            }
         }
 
         public static Dictionary<string, object> ResolveNewData (Dictionary<string, object> vals)
@@ -531,7 +522,7 @@ namespace Base
             // Save to the document.
             // Save to the document.
             var id = vals["id"];
-            var doc = Globals.database.GetDocument("homework/" + (string)id);
+            var doc = database.GetDocument((string)id);
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
@@ -540,6 +531,13 @@ namespace Base
             });
 
             return vals;
+        }
+
+        private TValue GetAttributeOrDefault<TValue>(string attribute, TValue defaultValue)
+        {
+            var doc = database.GetExistingDocument(Id);
+            var properties = doc.Properties;
+            return GetValueOrDefault(properties, attribute, defaultValue);
         }
     }
 }
