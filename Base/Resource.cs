@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using Couchbase.Lite;
 
+using Newtonsoft.Json.Linq;
+
 
 namespace Base
 {
@@ -94,13 +96,13 @@ namespace Base
         private Document doc;
 
         public override string Id { get; }
-        public override string Name => (string)doc.GetProperty("name"); 
-        public override string Type => (string)doc.GetProperty("type"); 
-        public override string Department => (string)doc.GetProperty("department"); 
-        public override string Class => (string)doc.GetProperty("class"); 
-        public override string Gender => (string)doc.GetProperty("gender"); 
-        public override string Email => (string)doc.GetProperty("email"); 
-        public override string Phone => (string)doc.GetProperty("phone"); 
+        public override string Name => (string)doc.GetProperty("name");
+        public override string Type => (string)doc.GetProperty("type");
+        public override string Department => (string)doc.GetProperty("department");
+        public override string Class => (string)doc.GetProperty("class");
+        public override string Gender => (string)doc.GetProperty("gender");
+        public override string Email => (string)doc.GetProperty("email");
+        public override string Phone => (string)doc.GetProperty("phone");
 
         public SyncedUser (Dictionary<string, object> vals)
         {
@@ -120,6 +122,8 @@ namespace Base
         public override string Gender { get; }
         public override string Email { get; }
         public override string Phone { get; }
+
+		public AsyncedUser (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
 
         public AsyncedUser (Dictionary<string, object> vals)
         {
@@ -141,6 +145,8 @@ namespace Base
 		public int DayOfWeek { get; set; }
 		public int PeriodOfDay { get; set; }
 		public string Location { get; set; }
+
+		public TimeLocation (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
 
         public TimeLocation (Dictionary<string, object> vals)
         {
@@ -177,12 +183,9 @@ namespace Base
             {
 				var timeLocations = new List<TimeLocation>();
 				var objList = (IEnumerable<object>)doc.GetProperty("time_locations");
-				if (objList == null) {
-					return timeLocations;
-				}
+
 				foreach (var obj in objList) {
-					Newtonsoft.Json.Linq.JObject x = (Newtonsoft.Json.Linq.JObject)obj;
-					timeLocations.Add (new TimeLocation (x.ToObject<Dictionary<string, object>>()));
+					timeLocations.Add (new TimeLocation ((JObject)obj));
 				}
 				return timeLocations;
             }
@@ -197,8 +200,7 @@ namespace Base
 				var objList = (IEnumerable<object>)doc.GetProperty("teachers");
 				
 				foreach (var obj in objList) {
-					Newtonsoft.Json.Linq.JObject x = (Newtonsoft.Json.Linq.JObject)obj;
-					teachers.Add (new AsyncedUser (x.ToObject<Dictionary<string, object>>()));
+					teachers.Add (new AsyncedUser ((JObject)obj));
 				}
 				return teachers;
             }
@@ -212,8 +214,7 @@ namespace Base
 				var objList = (IEnumerable<object>)doc.GetProperty("assistants");
 
 				foreach (var obj in objList) {
-					Newtonsoft.Json.Linq.JObject x = (Newtonsoft.Json.Linq.JObject)obj;
-					assistants.Add (new AsyncedUser (x.ToObject<Dictionary<string, object>>()));
+					assistants.Add (new AsyncedUser ((JObject)obj));
 				}
                 return assistants;
             }
@@ -265,7 +266,7 @@ namespace Base
         public string CourseId => (string)doc.GetProperty("course_id");
 
         // Metadata.
-		public User Owner => new AsyncedUser((Dictionary<string, object>)doc.GetProperty("owner"));
+		public User Owner => new AsyncedUser((JObject)doc.GetProperty("owner"));
         public string CreatedAt => (string)doc.GetProperty("created_at");
 		public int Priority => Convert.ToInt32(doc.GetProperty("priority"));
         public bool Read => (bool)doc.GetProperty("read");
@@ -360,11 +361,13 @@ namespace Base
 		public int Size { get; set; }
 		public string DownloadUrl { get; set; }
 
+		public Attachment (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
+
         public Attachment (Dictionary<string, object> vals)
         {
-            Filename = (string)vals["filename"];
+			Filename = Convert.ToString(vals["filename"]);
 			Size = Convert.ToInt32(vals["size"]);
-            DownloadUrl = (string)vals["download_url"];
+			DownloadUrl = Convert.ToString(vals["download_url"]);
         }
 
         // public static Dictionary<string, object> ResolveNewData(Dictionary<string, object> vals) => vals;
@@ -380,28 +383,31 @@ namespace Base
         public string OwnerId { get; }
 
         // Metadata.
-		public User Owner => new AsyncedUser((Dictionary<string, object>)doc.GetProperty("owner"));
+		public User Owner => new AsyncedUser((JObject)doc.GetProperty("owner"));
         public string CreatedAt => (string)doc.GetProperty("created_at");
         public bool Late => (bool)doc.GetProperty("late");
 
         // Content.
         public string Body => (string)doc.GetProperty("body");
-		public Attachment Attachment => new Attachment((Dictionary<string, object>)doc.GetProperty("attachment"));
+		public Attachment Attachment => new Attachment((JObject)doc.GetProperty("attachment"));
 
         // Scoring metadata.
-		public User MarkedBy => new AsyncedUser((Dictionary<string, object>)doc.GetProperty("marked_by"));
+		public User MarkedBy => new AsyncedUser((JObject)doc.GetProperty("marked_by"));
         public string MarkedAt => (string)doc.GetProperty("marked_at");
 
         // Scoring content.
 		public double Mark => (double)doc.GetProperty("mark");
         public string Comment => (string)doc.GetProperty("comment");
-		public Attachment CommentAttachment => new Attachment((Dictionary<string, object>)doc.GetProperty("comment_attachment"));
+		public Attachment CommentAttachment => new Attachment((JObject)doc.GetProperty("comment_attachment"));
+
+		public Submission (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
 
         public Submission (Dictionary<string, object> vals)
         {
 			string id = (string)vals["id"];
 			char[] seperator = {'/'};
-			string[] words = id.Split(seperator, 1);
+			string[] words = id.Split(seperator, 2);
+
 			HomeworkId = words[0];
 			OwnerId = words[1];
 
@@ -459,7 +465,7 @@ namespace Base
         // Content.
         public string Title => (string)doc.GetProperty("title");
         public string Body => (string)doc.GetProperty("body");
-		public Attachment Attachment => new Attachment((Dictionary<string, object>)doc.GetProperty("attachment"));
+		public Attachment Attachment => new Attachment((JObject)doc.GetProperty("attachment"));
 
         // Submissions.
 		public List<Submission> Submissions
@@ -468,9 +474,9 @@ namespace Base
 			{
 				var submissions = new List<Submission> ();
 				var objList =  (IEnumerable<object>)doc.GetProperty("submissions");
+
 				foreach (var obj in objList) {
-					Newtonsoft.Json.Linq.JObject x = (Newtonsoft.Json.Linq.JObject)obj;
-					submissions.Add (new Submission (x.ToObject<Dictionary<string, object>>()));
+					submissions.Add (new Submission ((JObject)obj));
 				}
                 return submissions;
             }

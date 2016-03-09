@@ -10,6 +10,7 @@ namespace Base
 
 		public class ResourceBase {
 			static public object MakeDefault(Type type) {
+				// Console.WriteLine ("make default {0}", type.ToString ());
 				if (type.IsSubclassOf (typeof(ResourceBase))) {
 					var dict = new Dictionary<string, object> ();
 					foreach (var p in type.GetProperties()) {
@@ -102,7 +103,7 @@ namespace Base
 				saver (id, dict);
 
 				return new Dictionary<string, object> {
-					{"Id", id}
+					{"id", id}
 				};
 			}
 		} // End class IdResourceBase
@@ -215,6 +216,7 @@ namespace Base
 			public Attachment Comment_attachment { get; set; }
 
 			public override string GetId() {
+				// Use <homework_id>/<user_id> as key of submission
 				return String.Format("{0}/{1}", this.Homework_id, (this?.Owner?.Id) ?? "");
 			}
 		}
@@ -240,7 +242,7 @@ namespace Base
 			public Attachment Attachment { get; set; }
 
 			// Submissions.
-			public List<Submission>  Submissions;
+			public List<Submission>  Submissions { get; set; }
 		}
 	} // End namespace Trivial
 
@@ -254,10 +256,11 @@ namespace Base
 		}
 
 		public bool UpdateAll() {
-			bool profileStatus, attendedStatus;
+			bool profileStatus, attendedStatus; //, homeworkStatus;
 			profileStatus = UpdateProfile ();
 			attendedStatus = UpdateAttended ("all");
-			return attendedStatus && profileStatus;
+			//homeworkStatus = UpdateCourseHomeworks ("123514"); // for test
+			return attendedStatus && profileStatus;// && homeworkStatus;
 		}
 
 		public bool UpdateProfile ()
@@ -295,11 +298,13 @@ namespace Base
 		public bool UpdateCourseHomeworks (string courseId) {
 			string jsonString;
 			var status = apiWrapper.GetHomeworks (courseId, out jsonString);
+
 			if (!status.IsScuccessStatusCode ()) {
 				return false;
 			} else {
 				var homeworks = JsonConvert.DeserializeObject<List<Trivial.Homework>> (jsonString);
 				foreach (var homework in homeworks) {
+					// Console.WriteLine (homework.Id);
 					homework.Save ();
 				}
 				return true;
