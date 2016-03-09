@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using Newtonsoft.Json;
@@ -9,15 +10,14 @@ namespace Base
 
 		public class ResourceBase {
 			static public object MakeDefault(Type type) {
-				if (type.IsSubclassOf (ResourceBase)) {
+				if (type.IsSubclassOf (typeof(ResourceBase))) {
 					var dict = new Dictionary<string, object> ();
-					foreach (var p in type.getProperties()) {
+					foreach (var p in type.GetProperties()) {
 						dict [p.Name] = MakeDefault (p.PropertyType);
 					}
-
 					return dict;
 				} else if (type.IsValueType) {
-					return default(type);
+					return Activator.CreateInstance(type);
 				} else if (type == typeof(string)) {
 					return "";
 				} else {
@@ -25,7 +25,7 @@ namespace Base
 				}
 			}
 
-			public virtual Dictionary<string, object> save() {
+			public virtual Dictionary<string, object> Save() {
 				Type type = this.GetType();
 				var dict = new Dictionary<string, object> ();
 
@@ -42,17 +42,24 @@ namespace Base
 			}
 		}// End class ResourceBase
 
+		public delegate bool ResourceSaver(string id, Dictionary<string, object> vals);
+
 		public class IdResourceBase: ResourceBase {
-			protected static Dictionary<Type, Type> ResourceMap = new Dictionary() {
-				{typeof(User), typeof(global::Base.User)},
-				{typeof(Course), typeof(global::Base.Course)},
-				{typeof(Announcement), typeof(global::Base.Announcement)},
-				{typeof(File), typeof(global::Base.File)},
-				{typeof(Submission), typeof(global::Base.Submission)},
-				{typeof(Homework), typeof(global::Base.Homework)}
+			public virtual string Id { get; set; }
+			protected static Dictionary<Type, ResourceSaver> ResourceMap = new Dictionary<Type, ResourceSaver>() {
+				{typeof(User), global::Base.User.ResolveNewData},
+				{typeof(Course), global::Base.Course.ResolveNewData},
+				{typeof(Announcement), global::Base.Announcement.ResolveNewData},
+				{typeof(File), global::Base.File.ResolveNewData},
+				{typeof(Submission), global::Base.Submission.ResolveNewData},
+				{typeof(Homework), global::Base.Homework.ResolveNewData}
 			};
 
-        	public override Dictionary<string, object> save() {
+			public virtual string GetId() {
+				return this.Id;
+			}
+
+        	public override Dictionary<string, object> Save() {
 				Type type = this.GetType();
 				var dict = new Dictionary<string, object> ();
 
@@ -66,7 +73,7 @@ namespace Base
 							foreach (var v in valueEnum) {
 								var resource = v as ResourceBase;
 								if (resource != null) {
-									valueobj.Add (resource.save ());
+									valueobj.Add (resource.Save ());
 								} else {
 									valueobj.Add (v);
 								}
@@ -76,7 +83,7 @@ namespace Base
 							var resource = value as ResourceBase;
 							if (resource != null) {
 								// Resource type
-								dict [p.Name] = resource.save ();
+								dict [p.Name] = resource.Save ();
 							} else {
 								dict [p.Name] = value;
 							}
@@ -86,9 +93,14 @@ namespace Base
 						dict [p.Name] = MakeDefault(p.PropertyType);
 					}		
 				}
+
 				// Call the saver
-				var saver = 
-				return dict;
+				string id = this.GetId();
+				var saver = ResourceMap [type];
+				saver (id, dict);
+				return new Dictionary<string, object> {
+					{"Id", id}
+				};
 			}
 		} // End class IdResourceBase
 
@@ -115,7 +127,7 @@ namespace Base
 		public class Course: IdResourceBase
 		{
 			// Identifiers.
-			public string Id { get; set; }
+			public override string Id { get; set; }
 			public string Semester { get; set; }
 			public string Course_number { get; set; }
 			public string Course_sequence { get; set; }
@@ -137,7 +149,7 @@ namespace Base
 		public class Announcement: IdResourceBase
 		{
 			// Identifiers.
-			public string Id { get; set; }
+			public override string Id { get; set; }
 			public string Course_id { get; set; }
 
 			// Metadata.
@@ -154,7 +166,7 @@ namespace Base
 		public class File: IdResourceBase
 		{
 			// Identifiers.
-			public string Id { get; set; }
+			public override string Id { get; set; }
 			public string Course_id { get; set; }
 
 			// Metadata.
@@ -198,12 +210,16 @@ namespace Base
 			public double Mark { get; set; }
 			public string Comment { get; set; }
 			public Attachment Comment_attachment { get; set; }
+
+			public override string GetId() {
+				return String.Format("{0}/{1}", this.Homework_id, (this?.Owner?.Id) ?? "");
+			}
 		}
 
 		public class Homework: IdResourceBase
 		{
 			// Identifiers.
-			public string Id { get; set; }
+			public override string Id { get; set; }
 			public string Course_id { get; set; }
 
 			// Metadata.
@@ -242,7 +258,9 @@ namespace Base
 				// Get profile information fail
 				return false;
 			} else {
-				return JsonConvert.DeserializeObject<User> (jsonString);
+				// Fixme: error handling
+				JsonConvert.DeserializeObject<Trivial.User> (jsonString).Save();
+				return true;
 			}
 		}
 
@@ -254,7 +272,11 @@ namespace Base
 				// Get attended information fail
 				return false;
 			} else {
-				return JsonConvert.DeserializeObject<List<Course>> (jsonString);
+				var courses = JsonConvert.DeserializeObject<List<Trivial.Course>> (jsonString);
+				foreach (var course in courses) {
+					course.Save ();
+				}
+				return true;
 			}
 		}
 	} // End class UpdateAgent
