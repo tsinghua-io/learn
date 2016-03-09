@@ -59,9 +59,9 @@ namespace Base
         public override string Email => (string)doc.GetProperty("email"); 
         public override string Phone => (string)doc.GetProperty("phone"); 
 
-        public SyncedUser (Dictionary<string, object> vals)
+        public SyncedUser (string id)
         {
-            Id = (string)vals["id"];
+            Id = id;
             doc = database.GetDocument(Id);
         }
     }
@@ -159,9 +159,9 @@ namespace Base
             }
         }
 
-        public Course (Dictionary<string, object> vals)
+        public Course (string id)
         {
-            Id = (string)vals["id"];
+            Id = id;
             doc = database.GetDocument(Id);
         }
 
@@ -199,9 +199,9 @@ namespace Base
         public string Title => (string)doc.GetProperty("title");
         public string Body => (string)doc.GetProperty("body");
 
-        public Announcement (Dictionary<string, object> vals)
+        public Announcement (string id)
         {
-            Id = (string)vals["id"];
+            Id = id;
             doc = database.GetDocument(Id);
         }
 
@@ -242,9 +242,9 @@ namespace Base
         public int Size => (int)doc.GetProperty("size");
         public string DownloadUrl => (string)doc.GetProperty("download_url");
 
-        public File (Dictionary<string, object> vals)
+        public File (string id)
         {
-            Id = (string)vals["id"];
+            Id = id;
             doc = database.GetDocument(Id);
         }
 
@@ -306,10 +306,10 @@ namespace Base
         public string Comment => (string)doc.GetProperty("comment");
 		public Attachment CommentAttachment => new Attachment((Dictionary<string, object>)doc.GetProperty("comment_attachment"));
 
-        public Submission (Dictionary<string, object> vals)
+        public Submission (string homeworkId, string ownerId)
         {
-            HomeworkId = (string)vals["homework_id"];
-            OwnerId = (string)vals["owner_id"];
+            HomeworkId = homeworkId;
+            OwnerId = ownerId;
             doc = database.GetDocument(HomeworkId + ":" + OwnerId);
         }
 
@@ -363,9 +363,9 @@ namespace Base
             }
         }
 
-        public Homework(Dictionary<string, object> vals)
+        public Homework(string id)
         {
-            Id = (string)vals["id"];
+            Id = id;
             doc = database.GetDocument(Id);
         }
 
