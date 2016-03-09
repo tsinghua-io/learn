@@ -105,13 +105,14 @@ namespace Base
         public SyncedUser (Dictionary<string, object> vals)
         {
             Id = (string)vals["id"];
-            doc = database.GetDocument(Id);
+            doc = database.GetExistingDocument(Id);
+            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
         }
     }
 
     public class AsyncedUser: User
     {
-        public override string Id => "";
+        public override string Id { get; }
         public override string Name { get; }
         public override string Type { get; }
         public override string Department { get; }
@@ -123,6 +124,7 @@ namespace Base
         public AsyncedUser (Dictionary<string, object> vals)
         {
             // Save attributes in the instance.
+            Id = (string)vals["id"];
             Name = (string)vals["name"];
             Type = (string)vals["type"];
             Department = (string)vals["department"];
@@ -220,7 +222,8 @@ namespace Base
         public Course (Dictionary<string, object> vals)
         {
             Id = (string)vals["id"];
-            doc = database.GetDocument (Id);
+            doc = database.GetExistingDocument(Id);
+            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
@@ -260,7 +263,8 @@ namespace Base
         public Announcement (Dictionary<string, object> vals)
         {
             Id = (string)vals["id"];
-            doc = database.GetDocument(Id);
+            doc = database.GetExistingDocument(Id);
+            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
@@ -303,7 +307,8 @@ namespace Base
         public File (Dictionary<string, object> vals)
         {
             Id = (string)vals["id"];
-            doc = database.GetDocument(Id);
+            doc = database.GetExistingDocument(Id);
+            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
@@ -367,12 +372,13 @@ namespace Base
         public Submission (Dictionary<string, object> vals)
         {
 			string id = (string)vals["id"];
-			char[] seperator = {' '};
+			char[] seperator = {'/'};
 			string[] words = id.Split(seperator, 1);
 			HomeworkId = words[0];
 			OwnerId = words[1];
-			
-            doc = database.GetDocument(id);
+
+            doc = database.GetExistingDocument(id);
+            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
@@ -431,7 +437,8 @@ namespace Base
         public Homework(Dictionary<string, object> vals)
         {
             Id = (string)vals["id"];
-            doc = database.GetDocument(Id);
+            doc = database.GetExistingDocument(Id);
+            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
