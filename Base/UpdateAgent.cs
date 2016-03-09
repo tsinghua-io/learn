@@ -13,7 +13,8 @@ namespace Base
 				if (type.IsSubclassOf (typeof(ResourceBase))) {
 					var dict = new Dictionary<string, object> ();
 					foreach (var p in type.GetProperties()) {
-						dict [p.Name] = MakeDefault (p.PropertyType);
+						var name = p.Name.ToLower ();
+						dict [name] = MakeDefault (p.PropertyType);
 					}
 					return dict;
 				} else if (type.IsValueType) {
@@ -30,12 +31,13 @@ namespace Base
 				var dict = new Dictionary<string, object> ();
 
 				foreach (var p in type.GetProperties()) {
+					var name = p.Name.ToLower ();
 					var value = p.GetValue (this);
 					if (value != null) {
-						dict [p.Name] = value;
+						dict [name] = value;
 					} else {
 						// Fill in default values.
-						dict [p.Name] = MakeDefault (p.PropertyType);
+						dict [name] = MakeDefault (p.PropertyType);
 					}
 				}
 				return dict;
@@ -47,7 +49,6 @@ namespace Base
 		public class IdResourceBase: ResourceBase {
 			public virtual string Id { get; set; }
 			protected static Dictionary<Type, ResourceSaver> ResourceMap = new Dictionary<Type, ResourceSaver>() {
-				{typeof(User), global::Base.User.ResolveNewData},
 				{typeof(Course), global::Base.Course.ResolveNewData},
 				{typeof(Announcement), global::Base.Announcement.ResolveNewData},
 				{typeof(File), global::Base.File.ResolveNewData},
@@ -64,6 +65,7 @@ namespace Base
 				var dict = new Dictionary<string, object> ();
 
 				foreach (var p in type.GetProperties()) {
+					var name = p.Name.ToLower ();
 					var value = p.GetValue (this);
 					if (value != null) {
 						if (value.GetType ().IsGenericType) {
@@ -78,19 +80,19 @@ namespace Base
 									valueobj.Add (v);
 								}
 							}
-							dict [p.Name] = valueobj;
+							dict [name] = valueobj;
 						}  else {
 							var resource = value as ResourceBase;
 							if (resource != null) {
 								// Resource type
-								dict [p.Name] = resource.Save ();
+								dict [name] = resource.Save ();
 							} else {
-								dict [p.Name] = value;
+								dict [name] = value;
 							}
 						}
 					} else {
 						// Fill in default values
-						dict [p.Name] = MakeDefault(p.PropertyType);
+						dict [name] = MakeDefault(p.PropertyType);
 					}		
 				}
 
@@ -98,6 +100,7 @@ namespace Base
 				string id = this.GetId();
 				var saver = ResourceMap [type];
 				saver (id, dict);
+
 				return new Dictionary<string, object> {
 					{"Id", id}
 				};
@@ -266,6 +269,7 @@ namespace Base
 				return false;
 			} else {
 				// Fixme: error handling
+				// Fixme: 个人profile需要单独存储， 现在这个调用其实并没有存储
 				JsonConvert.DeserializeObject<Trivial.User> (jsonString).Save();
 				return true;
 			}
@@ -281,7 +285,50 @@ namespace Base
 			} else {
 				var courses = JsonConvert.DeserializeObject<List<Trivial.Course>> (jsonString);
 				foreach (var course in courses) {
+					// Console.WriteLine (course.Id);
 					course.Save ();
+				}
+				return true;
+			}
+		}
+
+		public bool UpdateCourseHomeworks (string courseId) {
+			string jsonString;
+			var status = apiWrapper.GetHomeworks (courseId, out jsonString);
+			if (!status.IsScuccessStatusCode ()) {
+				return false;
+			} else {
+				var homeworks = JsonConvert.DeserializeObject<List<Trivial.Homework>> (jsonString);
+				foreach (var homework in homeworks) {
+					homework.Save ();
+				}
+				return true;
+			}
+		}
+
+		public bool UpdateCourseFiles (string courseId) {
+			string jsonString;
+			var status = apiWrapper.GetFiles (courseId, out jsonString);
+			if (!status.IsScuccessStatusCode ()) {
+				return false;
+			} else {
+				var files = JsonConvert.DeserializeObject<List<Trivial.File>> (jsonString);
+				foreach (var file in files) {
+					file.Save ();
+				}
+				return true;
+			}
+		}
+
+		public bool UpdateCourseAnnouncements (string courseId) {
+			string jsonString;
+			var status = apiWrapper.GetAnnouncements (courseId, out jsonString);
+			if (!status.IsScuccessStatusCode ()) {
+				return false;
+			} else {
+				var announcements = JsonConvert.DeserializeObject<List<Trivial.Announcement>> (jsonString);
+				foreach (var an in announcements) {
+					an.Save ();
 				}
 				return true;
 			}
