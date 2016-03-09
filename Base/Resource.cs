@@ -1,6 +1,10 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Couchbase.Lite;
+
 
 namespace Base
 {
@@ -9,6 +13,26 @@ namespace Base
         public static Manager manager = Manager.SharedInstance;
     }
 
+	public static class ResourceExtensionMethods
+	{
+
+		public static string ToStr (this IEnumerable resources)
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (var resource in resources) {
+				sb.AppendLine ("-----------------");
+				sb.Append (resource.ToString ());
+			}
+			sb.AppendLine ("-----------------");
+			return sb.ToString ();
+		}
+
+		public static string AddTabEachLine (this string str)
+		{
+			return str.Trim().Split ('\n').Select (s => "\t" + s).Aggregate ((i, j) => i + "\n" + j) + "\n";
+		}
+	}
+
     public abstract class ResourceBase
     {
         public static IDictionary<string, object> Update (IDictionary<string, object> original, IDictionary<string, object> newDict)
@@ -16,6 +40,25 @@ namespace Base
             newDict.ToList().ForEach(item => original[item.Key] = item.Value);
             return original;
         }
+
+		public override string ToString ()
+		{
+			StringBuilder sb = new StringBuilder();
+			Type type = this.GetType();
+			foreach (var p in type.GetProperties()) {
+				var value = p.GetValue (this);
+				if (value != null) {
+					string valueStr = value.ToString();
+					if (value.GetType ().IsGenericType) {
+						var valueEnum = value as IEnumerable;
+						valueStr = valueEnum.ToStr ();
+					}
+					sb.AppendFormat ("{0}:\n{1}\n", p.Name, valueStr.AddTabEachLine());
+				}
+			}
+			return sb.ToString ();	
+		}
+
     }
 
 	public abstract class User: ResourceBase
@@ -92,16 +135,16 @@ namespace Base
 
     public class TimeLocation: ResourceBase
     {
-        public string Weeks;
-        public int DayOfWeek;
-        public int PeriodOfDay;
-        public string Location;
+		public string Weeks { get; set; }
+		public int DayOfWeek { get; set; }
+		public int PeriodOfDay { get; set; }
+		public string Location { get; set; }
 
         public TimeLocation (Dictionary<string, object> vals)
         {
             Weeks = (string)vals["weeks"];
-            DayOfWeek = (int)vals["day_of_week"];
-            PeriodOfDay = (int)vals["period_of_day"];
+			DayOfWeek = Convert.ToInt32(vals["day_of_week"]);
+			PeriodOfDay = Convert.ToInt32(vals["period_of_day"]);
             Location = (string)vals["location"];
         }
         // public static Dictionary<string, object> ResolveNewData(Dictionary<string, object> vals) => vals;
@@ -120,19 +163,26 @@ namespace Base
 
         // Metadata.
         public string Name => (string)doc.GetProperty("name");
-        public int Credit => (int)doc.GetProperty("credit");
-        public int Hour => (int)doc.GetProperty("hour");
+		public int Credit => Convert.ToInt32(doc.GetProperty("credit"));
+			
+		public int Hour => Convert.ToInt32(doc.GetProperty("hour"));
         public string Description => (string)doc.GetProperty("description");
 
         // Time & location.
-        public List<TimeLocation> TimeLocations
+        public List<TimeLocation> Time_locations
         {
             get
             {
-                var time_locations = new List<TimeLocation>();
-                var list = (List<object>)doc.GetProperty("time_locations");
-                list.ForEach(item => time_locations.Add(new TimeLocation((Dictionary<string, object>)item)));
-                return time_locations;
+				var timeLocations = new List<TimeLocation>();
+				var objList = (IEnumerable<object>)doc.GetProperty("time_locations");
+				if (objList == null) {
+					return timeLocations;
+				}
+				foreach (var obj in objList) {
+					Newtonsoft.Json.Linq.JObject x = (Newtonsoft.Json.Linq.JObject)obj;
+					timeLocations.Add (new TimeLocation (x.ToObject<Dictionary<string, object>>()));
+				}
+				return timeLocations;
             }
         }
 
@@ -141,10 +191,14 @@ namespace Base
         {
             get
             {
-                var teachers = new List<User>();
-                var list = (List<object>)doc.GetProperty("teachers");
-                list.ForEach(item => teachers.Add(new AsyncedUser((Dictionary<string, object>)item)));
-                return teachers;
+				var teachers = new List<User>();
+				var objList = (IEnumerable<object>)doc.GetProperty("teachers");
+				
+				foreach (var obj in objList) {
+					Newtonsoft.Json.Linq.JObject x = (Newtonsoft.Json.Linq.JObject)obj;
+					teachers.Add (new AsyncedUser (x.ToObject<Dictionary<string, object>>()));
+				}
+				return teachers;
             }
         }
 
@@ -153,8 +207,12 @@ namespace Base
             get
             {
                 var assistants = new List<User>();
-                var list = (List<object>)doc.GetProperty("assistants");
-                list.ForEach(item => assistants.Add(new AsyncedUser((Dictionary<string, object>)item)));
+				var objList = (IEnumerable<object>)doc.GetProperty("assistants");
+
+				foreach (var obj in objList) {
+					Newtonsoft.Json.Linq.JObject x = (Newtonsoft.Json.Linq.JObject)obj;
+					assistants.Add (new AsyncedUser (x.ToObject<Dictionary<string, object>>()));
+				}
                 return assistants;
             }
         }
@@ -162,7 +220,7 @@ namespace Base
         public Course (Dictionary<string, object> vals)
         {
             Id = (string)vals["id"];
-            doc = database.GetDocument(Id);
+            doc = database.GetDocument (Id);
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
@@ -192,7 +250,7 @@ namespace Base
         // Metadata.
 		public User Owner => new AsyncedUser((Dictionary<string, object>)doc.GetProperty("owner"));
         public string CreatedAt => (string)doc.GetProperty("created_at");
-        public int Priority => (int)doc.GetProperty("priority");
+		public int Priority => Convert.ToInt32(doc.GetProperty("priority"));
         public bool Read => (bool)doc.GetProperty("read");
 
         // Content.
@@ -239,7 +297,7 @@ namespace Base
 
         // Content.
         public string Filename => (string)doc.GetProperty("filename");
-        public int Size => (int)doc.GetProperty("size");
+		public int Size => Convert.ToInt32(doc.GetProperty("size"));
         public string DownloadUrl => (string)doc.GetProperty("download_url");
 
         public File (Dictionary<string, object> vals)
@@ -265,14 +323,14 @@ namespace Base
 
     public class Attachment: ResourceBase
     {
-        public string Filename;
-        public int Size;
-        public string DownloadUrl;
+		public string Filename { get; set; }
+		public int Size { get; set; }
+		public string DownloadUrl { get; set; }
 
         public Attachment (Dictionary<string, object> vals)
         {
             Filename = (string)vals["filename"];
-            Size = (int)vals["size"];
+			Size = Convert.ToInt32(vals["size"]);
             DownloadUrl = (string)vals["download_url"];
         }
 
@@ -308,14 +366,18 @@ namespace Base
 
         public Submission (Dictionary<string, object> vals)
         {
-            HomeworkId = (string)vals["homework_id"];
-            OwnerId = (string)vals["owner_id"];
-            doc = database.GetDocument(HomeworkId + ":" + OwnerId);
+			string id = (string)vals["id"];
+			char[] seperator = {' '};
+			string[] words = id.Split(seperator, 1);
+			HomeworkId = words[0];
+			OwnerId = words[1];
+			
+            doc = database.GetDocument(id);
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
         {
-            // id is <homework_id>:<owner_id>
+            // id is <homework_id>/<owner_id>
             var doc = database.GetDocument(id);
             doc.Update((UnsavedRevision newRevision) =>
             {
@@ -341,10 +403,10 @@ namespace Base
         public string CreatedAt => (string)doc.GetProperty("created_at");
         public string BeginAt => (string)doc.GetProperty("begin_at");
         public string DueAt => (string)doc.GetProperty("due_at");
-        public int SubmittedCount => (int)doc.GetProperty("submitted_count");
-        public int NotSubmittedCount => (int)doc.GetProperty("not_submitted_count");
-        public int SeenCount => (int)doc.GetProperty("seen_count");
-        public int MarkedCount => (int)doc.GetProperty("marked_count");
+		public int SubmittedCount => Convert.ToInt32(doc.GetProperty("submitted_count"));
+		public int NotSubmittedCount => Convert.ToInt32(doc.GetProperty("not_submitted_count"));
+		public int SeenCount => Convert.ToInt32(doc.GetProperty("seen_count"));
+		public int MarkedCount => Convert.ToInt32(doc.GetProperty("marked_count"));
 
         // Content.
         public string Title => (string)doc.GetProperty("title");
@@ -355,10 +417,13 @@ namespace Base
 		public List<Submission> Submissions
         {
             get
-            {
-                var submissions = new List<Submission>();
-                var list = (List<object>)doc.GetProperty("submissions");
-                list.ForEach(submission => submissions.Add(new Submission((Dictionary<string, object>)submission)));
+			{
+				var submissions = new List<Submission> ();
+				var objList =  (IEnumerable<object>)doc.GetProperty("submissions");
+				foreach (var obj in objList) {
+					Newtonsoft.Json.Linq.JObject x = (Newtonsoft.Json.Linq.JObject)obj;
+					submissions.Add (new Submission (x.ToObject<Dictionary<string, object>>()));
+				}
                 return submissions;
             }
         }

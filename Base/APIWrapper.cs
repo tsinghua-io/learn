@@ -61,7 +61,7 @@ namespace Base
 			return get (filesUrl, out jsonString, new Dictionary<string, string>() {{"courseId", courseId}});
 		}
 
-		public HttpStatusCode GetAnnoucements (string courseId, out string jsonString) 
+		public HttpStatusCode GetAnnouncements (string courseId, out string jsonString) 
 		{
 			return get (announcementsUrl, out jsonString, new Dictionary<string, string>() {{"courseId", courseId}});
 		}
