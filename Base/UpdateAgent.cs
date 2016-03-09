@@ -250,6 +250,13 @@ namespace Base
 			apiWrapper = new APIWrapper (baseUrl, userName, password);
 		}
 
+		public bool UpdateAll() {
+			bool profileStatus, attendedStatus;
+			profileStatus = UpdateProfile ();
+			attendedStatus = UpdateAttended ("all");
+			return attendedStatus && profileStatus;
+		}
+
 		public bool UpdateProfile ()
 		{
 			string jsonString;

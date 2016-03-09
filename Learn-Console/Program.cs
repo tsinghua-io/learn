@@ -56,14 +56,17 @@ namespace LearnConsole
 
     public class LearnConsole
     {
-		public static APIWrapper GetApiWrapper (CommonOptions options) 
-		{
+		public static APIWrapper GetApiWrapper (CommonOptions options) {
 			LogInfo ("Using proxy server", options.Server);
 			return new APIWrapper (options.Server, options.User, options.Password);
 		}
 
-        public static int Main(string[] args)
-        {
+		public static UpdateAgent GetUpdateAgent (CommonOptions options) {
+			LogInfo ("Using proxy server", options.Server);
+			return new UpdateAgent (options.Server, options.User, options.Password);
+		}
+
+		public static int Main(string[] args) {
 			return Parser.Default.ParseArguments<
                 UpdateOptions, AnnouncementOptions, FileOptions,
 				HomeworkOptions, ProfileOptions, AttendOptions> (args).MapResult (
@@ -78,8 +81,12 @@ namespace LearnConsole
 
         public static int Update(UpdateOptions opts)
         {
-            Console.WriteLine("Update command parsed.");
-            return 0;
+            Console.WriteLine ("Update command parsed.");
+			var status = GetUpdateAgent (opts).UpdateAll ();
+			if (!status) {
+				Console.WriteLine ("Some update failed.");
+			}
+			return status?0:1;
         }
 
         public static int Announcement(AnnouncementOptions opts)
