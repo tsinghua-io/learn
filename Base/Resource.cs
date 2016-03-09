@@ -171,7 +171,7 @@ namespace Base
         public string Description => (string)doc.GetProperty("description");
 
         // Time & location.
-        public List<TimeLocation> Time_locations
+        public List<TimeLocation> TimeLocations
         {
             get
             {
