@@ -31,7 +31,7 @@ namespace Base
 
 		public static string AddTabEachLine (this string str)
 		{
-			return str.Trim().Split ('\n').Select (s => "\t" + s).Aggregate ((i, j) => i + "\n" + j) + "\n";
+			return str.Trim().Split ('\n').Select (s => "\t" + s).Aggregate ((i, j) => i + "\n" + j);
 		}
 	}
 
@@ -48,6 +48,10 @@ namespace Base
 			StringBuilder sb = new StringBuilder();
 			Type type = this.GetType();
 			foreach (var p in type.GetProperties()) {
+				var name = p.Name;
+				if (name == "database") {
+					continue;
+				}
 				var value = p.GetValue (this);
 				if (value != null) {
 					string valueStr = value.ToString();
@@ -55,7 +59,7 @@ namespace Base
 						var valueEnum = value as IEnumerable;
 						valueStr = valueEnum.ToStr ();
 					}
-					sb.AppendFormat ("{0}:\n{1}\n", p.Name, valueStr.AddTabEachLine());
+					sb.AppendFormat ("{0}:\n{1}\n", name, valueStr.AddTabEachLine());
 				}
 			}
 			return sb.ToString ();	
@@ -160,7 +164,20 @@ namespace Base
 
     public class Course: ResourceBase
     {
-        public static Database database = Globals.manager.GetDatabase("courses");
+		public static Database database
+		{
+			get
+			{
+				var db = Globals.manager.GetDatabase("courses");
+				var view = db.GetView("courseIds");
+				view.SetMap((doc, emit) =>
+					{
+						var courseId = (string)doc["id"];
+						emit(courseId, null);
+					}, "1");
+				return db;
+			}
+		}
         public Document doc;
 
         // Identifiers.
@@ -256,6 +273,7 @@ namespace Base
                     var id = (string)doc["id"];
                     emit(courseId, id);
                 }, "1");
+				
                 return db;
             }
         }
@@ -384,7 +402,7 @@ namespace Base
 
         // Metadata.
 		public User Owner => new AsyncedUser((JObject)doc.GetProperty("owner"));
-        public string CreatedAt => (string)doc.GetProperty("created_at");
+		public string CreatedAt => (string)doc.GetProperty("created_at");
         public bool Late => (bool)doc.GetProperty("late");
 
         // Content.
@@ -454,7 +472,7 @@ namespace Base
         public string CourseId => (string)doc.GetProperty("course_id");
 
         // Metadata.
-        public string CreatedAt => (string)doc.GetProperty("created_at");
+		public string CreatedAt => (string)doc.GetProperty("created_at");
         public string BeginAt => (string)doc.GetProperty("begin_at");
         public string DueAt => (string)doc.GetProperty("due_at");
 		public int SubmittedCount => Convert.ToInt32(doc.GetProperty("submitted_count"));
@@ -463,7 +481,7 @@ namespace Base
 		public int MarkedCount => Convert.ToInt32(doc.GetProperty("marked_count"));
 
         // Content.
-        public string Title => (string)doc.GetProperty("title");
+		public string Title => (string)doc.GetProperty("title");
         public string Body => (string)doc.GetProperty("body");
 		public Attachment Attachment => new Attachment((JObject)doc.GetProperty("attachment"));
 
