@@ -108,7 +108,7 @@ namespace Base
         {
             Id = (string)vals["id"];
             doc = database.GetExistingDocument(Id);
-            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
+            if (doc == null) { throw new LearnBaseException("Id not exist!"); }
         }
     }
 
@@ -224,7 +224,7 @@ namespace Base
         {
             Id = (string)vals["id"];
             doc = database.GetExistingDocument(Id);
-            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
+            if (doc == null) { throw new LearnBaseException("Id not exist!"); }
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
@@ -279,7 +279,7 @@ namespace Base
         {
             Id = (string)vals["id"];
             doc = database.GetExistingDocument(Id);
-            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
+            if (doc == null) { throw new LearnBaseException("Id not exist!"); }
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
@@ -337,7 +337,7 @@ namespace Base
         {
             Id = (string)vals["id"];
             doc = database.GetExistingDocument(Id);
-            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
+            if (doc == null) { throw new LearnBaseException("Id not exist!"); }
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
@@ -412,7 +412,7 @@ namespace Base
 			OwnerId = words[1];
 
             doc = database.GetExistingDocument(id);
-            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
+            if (doc == null) { throw new LearnBaseException("Id not exist!"); }
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
@@ -486,7 +486,7 @@ namespace Base
         {
             Id = (string)vals["id"];
             doc = database.GetExistingDocument(Id);
-            if (doc == null) { throw new ArgumentNullException("Id not exist!"); }
+            if (doc == null) { throw new LearnBaseException("Id not exist!"); }
         }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
