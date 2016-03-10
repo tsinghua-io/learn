@@ -123,16 +123,26 @@ namespace LearnConsole
 		public static int Homework (HomeworkOptions opts)
 		{
 			// Todo: Get homeworks from homeworks by courseId view
+			// for test, use course as homework id now
+			/*var homework = new Homework (new Dictionary<string, object> () {
+				{ "id", opts.Course }
+			});
+			Console.WriteLine (homework);*/
 			return 0;
 		}
 
 		public static int Info (CourseInfoOptions opts) 
 		{
-			var course = new Course(new Dictionary<string, object>() {
-				{"id", opts.Course}
-			});
-			Console.WriteLine (course);
-			return 0;
+			try {
+				var course = new Course(new Dictionary<string, object>() {
+					{"id", opts.Course}
+				});
+				Console.WriteLine (course);
+				return 0;
+			} catch (LearnBaseException ex) {
+				Console.WriteLine ("Error fetching course info of id {0}: {1}", opts.Course, ex.Message);
+				return 1;
+			}
 		}
 
 		public static int Profile (ProfileOptions opts)
