@@ -1,11 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using CommandLine;
+using System.Linq;
 
 using Base;
 
 namespace LearnConsole
 {
+
+	public class CommonOptions
+	{
+		[Option ("detail", HelpText = "Detailed informations.")]
+		public bool detail { get; set; }
+	}
+
+	[Verb ("config", HelpText = "Get and set configurations.")]
+	public class ConfigOptions{
+		
+	}
 
 	[Verb ("update", HelpText = "Update all data.")]
 	public class UpdateOptions
@@ -21,24 +33,27 @@ namespace LearnConsole
 
 		[Option ('v', "verbose", HelpText = "Verbosely print out the update informations.")]
 		public bool Verbose { get; set; }
+
+		[Option ('a', "all", HelpText = "Update all informations of all courses.")]
+		public bool All { get; set; }
 	}
 
 	[Verb ("annc", HelpText = "Get all Announcements.")]
-	public class AnnouncementOptions
+	public class AnnouncementOptions: CommonOptions
 	{
 		[Value (0, Required = true, MetaName = "course", HelpText = "Get Announcements of specific course.")]
 		public string Course { get; set; }
 	}
 
 	[Verb ("file", HelpText = "Get all files.")]
-	public class FileOptions
+	public class FileOptions: CommonOptions
 	{
 		[Value (0, Required = true, MetaName = "course", HelpText = "Get files of specific course.")]
 		public string Course { get; set; }
 	}
 
 	[Verb ("hw", HelpText = "Get all homeworks.")]
-	public class HomeworkOptions
+	public class HomeworkOptions: CommonOptions
 	{
 		[Value (0, Required = true, MetaName = "course", HelpText = "Get homeworks of specific course.")]
 		public string Course { get; set; }
@@ -58,13 +73,11 @@ namespace LearnConsole
 	}
 
 	[Verb ("attend", HelpText = "List of all courses.")]
-	public class AttendOptions
+	public class AttendOptions: CommonOptions
 	{
 		[Option ("semester", HelpText = "--semester=now: List of courses in this semester.")]
 		public string semester { get; set; }
 
-		[Option ("detail", HelpText = "Detailed information of courses.")]
-		public bool detail { get; set; }
 	}
 
 
@@ -100,41 +113,79 @@ namespace LearnConsole
 
 		public static int Update (UpdateOptions opts)
 		{
-			Console.WriteLine ("Update command parsed.");
-			var status = GetUpdateAgent (opts).UpdateAll ();
+			Console.WriteLine ("Start updating");
+			bool status;
+			if (opts.All) {
+				status = GetUpdateAgent (opts).UpdateAll ();
+			} else {
+				status = GetUpdateAgent (opts).UpdateNow ();
+			}
 			if (!status) {
-				Console.WriteLine ("Some update failed.");
+				Console.WriteLine ("Finish updating, but some update failed.");
+			} else {
+				Console.WriteLine ("Finish updating, no errors");
 			}
 			return status ? 0 : 1;
 		}
 
 		public static int Announcement (AnnouncementOptions opts)
 		{
-			// Todo: Get announcements from announcements by courseId view
+			var view = Base.Announcement.database.GetView ("announcementsByCourseId");
+			var query = view.CreateQuery ();
+			query.Keys = new List<string> () { opts.Course };
+
+			var annIds = query.Run ().Select (x => x.Value);
+			var anns = annIds.Select (id => new Base.Announcement (
+				new Dictionary<string, object> { { "id", id } })).ToList<Base.Announcement> ();
+
+			if (!opts.detail) {
+				anns.ForEach (a => Console.WriteLine ("{0,-10} | {1}", a.Id, a.Title));	
+			} else {
+				anns.ForEach (a => Console.WriteLine (a));
+			}
 			return 0;
 		}
 
 		public static int File (FileOptions opts)
 		{
-			// Todo: Get files from files by courseId view
+			var view = Base.File.database.GetView ("filesByCourseId");
+			var query = view.CreateQuery ();
+			query.Keys = new List<string> () { opts.Course };
+
+			var fileIds = query.Run ().Select (x => x.Value);
+			var files = fileIds.Select (id => new Base.File (
+				new Dictionary<string, object> { { "id", id } })).ToList<Base.File> ();
+
+			if (!opts.detail) {
+				files.ForEach (f => Console.WriteLine ("{0,-10} | {1}", f.Id, f.Title));	
+			} else {
+				files.ForEach (f => Console.WriteLine (f));
+			}
 			return 0;
 		}
 
 		public static int Homework (HomeworkOptions opts)
 		{
-			// Todo: Get homeworks from homeworks by courseId view
-			// for test, use course as homework id now
-			/*var homework = new Homework (new Dictionary<string, object> () {
-				{ "id", opts.Course }
-			});
-			Console.WriteLine (homework);*/
+			var view = Base.Homework.database.GetView ("homeworksByCourseId");
+			var query = view.CreateQuery ();
+			query.Keys = new List<string> () { opts.Course };
+
+			var homeworkIds = query.Run ().Select (x => x.Value);
+			var homeworks = homeworkIds.Select (id => new Base.Homework (
+				new Dictionary<string, object> { { "id", id } })).ToList<Base.Homework> ();
+
+			if (!opts.detail) {
+				homeworks.ForEach (h => Console.WriteLine ("{0,-10} | {1}", h.Id, h.Title));	
+			} else {
+				homeworks.ForEach (h => Console.WriteLine (h));
+			}
 			return 0;
 		}
 
 		public static int Info (CourseInfoOptions opts) 
 		{
 			try {
-				var course = new Course(new Dictionary<string, object>() {
+				var course = new Base.Course(new Dictionary<string, object>() {
 					{"id", opts.Course}
 				});
 				Console.WriteLine (course);
@@ -153,25 +204,30 @@ namespace LearnConsole
 		public static int Attend (AttendOptions opts)
 		{
 			string semester = opts.semester ?? "all";
-			List<Course> courses = new List<Course> (); // just for compiling now
+			List<Course> courses;
 
 			switch (semester) {
 			case "all":
-				// Todo: get courses from all-course query
+				var view = Base.Course.database.GetView ("courseIds");
+				var query = view.CreateQuery ();
+				var courseIds = query.Run ().Select (x => x.Key);
+				courses = courseIds.Select (id => new Base.Course (
+					new Dictionary<string, object> { { "id", id } })).ToList<Base.Course> ();
 				break;
 			case "now":
-				// Todo: get courses form now-course query
+				// Todo: get courses form now-course list
+				courses = new List<Course> ();
 				break;
 			default:
 				Console.WriteLine ("Unsupported semester argument \"{0}\".", semester);
+				courses = new List<Course> ();
 				break;
 			}
 
-			if (opts.detail) {
-				// All informations
+			if (!opts.detail) {
+				courses.ForEach (c => Console.WriteLine ("{0,-25}| {1,-50}{2,-20}", c.Id, c.Name, c.Semester));	
 			} else {
-				// Only name and id are printed
-				courses.ForEach(course => Console.WriteLine (course));
+				courses.ForEach(c => Console.WriteLine (c));
 			}
 			return 0;
 		}
