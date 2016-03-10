@@ -141,7 +141,7 @@ namespace LearnConsole
 			if (!opts.detail) {
 				anns.ForEach (a => Console.WriteLine ("{0,-10} | {1}", a.Id, a.Title));	
 			} else {
-				anns.ForEach (a => Console.WriteLine (a));
+				Console.WriteLine (anns.ToStr ());
 			}
 			return 0;
 		}
@@ -159,7 +159,7 @@ namespace LearnConsole
 			if (!opts.detail) {
 				files.ForEach (f => Console.WriteLine ("{0,-10} | {1}", f.Id, f.Title));	
 			} else {
-				files.ForEach (f => Console.WriteLine (f));
+				Console.WriteLine (files.ToStr ());
 			}
 			return 0;
 		}
@@ -177,7 +177,7 @@ namespace LearnConsole
 			if (!opts.detail) {
 				homeworks.ForEach (h => Console.WriteLine ("{0,-10} | {1}", h.Id, h.Title));	
 			} else {
-				homeworks.ForEach (h => Console.WriteLine (h));
+				Console.WriteLine (homeworks.ToStr ());
 			}
 			return 0;
 		}
@@ -227,7 +227,7 @@ namespace LearnConsole
 			if (!opts.detail) {
 				courses.ForEach (c => Console.WriteLine ("{0,-25}| {1,-50}{2,-20}", c.Id, c.Name, c.Semester));	
 			} else {
-				courses.ForEach(c => Console.WriteLine (c));
+				Console.WriteLine (courses.ToStr ());
 			}
 			return 0;
 		}

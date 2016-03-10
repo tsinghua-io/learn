@@ -15,25 +15,25 @@ namespace Base
         public static Manager manager = Manager.SharedInstance;
     }
 
-	public static class ResourceExtensionMethods
-	{
+    public static class ResourceExtensionMethods
+    {
 
-		public static string ToStr (this IEnumerable resources)
-		{
-			StringBuilder sb = new StringBuilder();
-			foreach (var resource in resources) {
-				sb.AppendLine ("-----------------");
-				sb.Append (resource.ToString ());
-			}
-			sb.AppendLine ("-----------------");
-			return sb.ToString ();
-		}
+        public static string ToStr (this IEnumerable resources)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var resource in resources) {
+                sb.AppendLine ("-----------------");
+                sb.AppendLine (resource.ToString ());
+            }
+            sb.AppendLine ("-----------------");
+            return sb.ToString ();
+        }
 
-		public static string AddTabEachLine (this string str)
-		{
-			return str.Trim().Split ('\n').Select (s => "\t" + s).Aggregate ((i, j) => i + "\n" + j);
-		}
-	}
+        public static string AddTabEachLine (this string str)
+        {
+            return str.Trim().Split ('\n').Select (s => "\t" + s).Aggregate ((i, j) => i + "\n" + j) + "\n";
+        }
+    }
 
     public abstract class ResourceBase
     {
@@ -43,42 +43,42 @@ namespace Base
             return original;
         }
 
-		public override string ToString ()
-		{
-			StringBuilder sb = new StringBuilder();
-			Type type = this.GetType();
-			foreach (var p in type.GetProperties()) {
-				var name = p.Name;
-				if (name == "database") {
-					continue;
-				}
-				var value = p.GetValue (this);
-				if (value != null) {
-					string valueStr = value.ToString();
-					if (value.GetType ().IsGenericType) {
-						var valueEnum = value as IEnumerable;
-						valueStr = valueEnum.ToStr ();
-					}
-					sb.AppendFormat ("{0}:\n{1}\n", name, valueStr.AddTabEachLine());
-				}
-			}
-			return sb.ToString ();	
-		}
+        public override string ToString ()
+        {
+            StringBuilder sb = new StringBuilder();
+            Type type = this.GetType();
+            foreach (var p in type.GetProperties()) {
+                var name = p.Name;
+                if (name == "database") {
+                    continue;
+                }
+                var value = p.GetValue (this);
+                if (value != null) {
+                    string valueStr = value.ToString();
+                    if (value.GetType ().IsGenericType) {
+                        var valueEnum = value as IEnumerable;
+                        valueStr = valueEnum.ToStr ();
+                    }
+                    sb.AppendFormat ("{0}:\n{1}", name, valueStr.AddTabEachLine());
+                }
+            }
+            return sb.ToString ();    
+        }
 
     }
 
-	public abstract class User: ResourceBase
+    public abstract class User: ResourceBase
     {
         public static Database database = Globals.manager.GetDatabase("users");
 
         public abstract string Id { get; }
-		public abstract string Name { get; }
-		public abstract string Type { get; }
-		public abstract string Department { get; }
-		public abstract string Class { get; }
-		public abstract string Gender { get; }
-		public abstract string Email { get; }
-		public abstract string Phone { get; }
+        public abstract string Name { get; }
+        public abstract string Type { get; }
+        public abstract string Department { get; }
+        public abstract string Class { get; }
+        public abstract string Gender { get; }
+        public abstract string Email { get; }
+        public abstract string Phone { get; }
 
         public static bool ResolveNewData (string id, Dictionary<string, object> vals)
         {
@@ -127,7 +127,7 @@ namespace Base
         public override string Email { get; }
         public override string Phone { get; }
 
-		public AsyncedUser (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
+        public AsyncedUser (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
 
         public AsyncedUser (Dictionary<string, object> vals)
         {
@@ -145,18 +145,18 @@ namespace Base
 
     public class TimeLocation: ResourceBase
     {
-		public string Weeks { get; set; }
-		public int DayOfWeek { get; set; }
-		public int PeriodOfDay { get; set; }
-		public string Location { get; set; }
+        public string Weeks { get; set; }
+        public int DayOfWeek { get; set; }
+        public int PeriodOfDay { get; set; }
+        public string Location { get; set; }
 
-		public TimeLocation (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
+        public TimeLocation (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
 
         public TimeLocation (Dictionary<string, object> vals)
         {
             Weeks = (string)vals["weeks"];
-			DayOfWeek = Convert.ToInt32(vals["day_of_week"]);
-			PeriodOfDay = Convert.ToInt32(vals["period_of_day"]);
+            DayOfWeek = Convert.ToInt32(vals["day_of_week"]);
+            PeriodOfDay = Convert.ToInt32(vals["period_of_day"]);
             Location = (string)vals["location"];
         }
         // public static Dictionary<string, object> ResolveNewData(Dictionary<string, object> vals) => vals;
@@ -164,20 +164,20 @@ namespace Base
 
     public class Course: ResourceBase
     {
-		public static Database database
-		{
-			get
-			{
-				var db = Globals.manager.GetDatabase("courses");
-				var view = db.GetView("courseIds");
-				view.SetMap((doc, emit) =>
-					{
-						var courseId = (string)doc["id"];
-						emit(courseId, null);
-					}, "1");
-				return db;
-			}
-		}
+        public static Database database
+        {
+            get
+            {
+                var db = Globals.manager.GetDatabase("courses");
+                var view = db.GetView("courseIds");
+                view.SetMap((doc, emit) =>
+                    {
+                        var courseId = (string)doc["id"];
+                        emit(courseId, null);
+                    }, "1");
+                return db;
+            }
+        }
         public Document doc;
 
         // Identifiers.
@@ -188,9 +188,9 @@ namespace Base
 
         // Metadata.
         public string Name => (string)doc.GetProperty("name");
-		public int Credit => Convert.ToInt32(doc.GetProperty("credit"));
-			
-		public int Hour => Convert.ToInt32(doc.GetProperty("hour"));
+        public int Credit => Convert.ToInt32(doc.GetProperty("credit"));
+            
+        public int Hour => Convert.ToInt32(doc.GetProperty("hour"));
         public string Description => (string)doc.GetProperty("description");
 
         // Time & location.
@@ -198,28 +198,28 @@ namespace Base
         {
             get
             {
-				var timeLocations = new List<TimeLocation>();
-				var objList = (IEnumerable<object>)doc.GetProperty("time_locations");
+                var timeLocations = new List<TimeLocation>();
+                var objList = (IEnumerable<object>)doc.GetProperty("time_locations");
 
-				foreach (var obj in objList) {
-					timeLocations.Add (new TimeLocation ((JObject)obj));
-				}
-				return timeLocations;
+                foreach (var obj in objList) {
+                    timeLocations.Add (new TimeLocation ((JObject)obj));
+                }
+                return timeLocations;
             }
         }
 
         // Staff.
-		public List<User> Teachers
+        public List<User> Teachers
         {
             get
             {
-				var teachers = new List<User>();
-				var objList = (IEnumerable<object>)doc.GetProperty("teachers");
-				
-				foreach (var obj in objList) {
-					teachers.Add (new AsyncedUser ((JObject)obj));
-				}
-				return teachers;
+                var teachers = new List<User>();
+                var objList = (IEnumerable<object>)doc.GetProperty("teachers");
+                
+                foreach (var obj in objList) {
+                    teachers.Add (new AsyncedUser ((JObject)obj));
+                }
+                return teachers;
             }
         }
 
@@ -228,11 +228,11 @@ namespace Base
             get
             {
                 var assistants = new List<User>();
-				var objList = (IEnumerable<object>)doc.GetProperty("assistants");
+                var objList = (IEnumerable<object>)doc.GetProperty("assistants");
 
-				foreach (var obj in objList) {
-					assistants.Add (new AsyncedUser ((JObject)obj));
-				}
+                foreach (var obj in objList) {
+                    assistants.Add (new AsyncedUser ((JObject)obj));
+                }
                 return assistants;
             }
         }
@@ -273,7 +273,7 @@ namespace Base
                     var id = (string)doc["id"];
                     emit(courseId, id);
                 }, "1");
-				
+
                 return db;
             }
         }
@@ -284,9 +284,9 @@ namespace Base
         public string CourseId => (string)doc.GetProperty("course_id");
 
         // Metadata.
-		public User Owner => new AsyncedUser((JObject)doc.GetProperty("owner"));
-        public string CreatedAt => (string)doc.GetProperty("created_at");
-		public int Priority => Convert.ToInt32(doc.GetProperty("priority"));
+        public User Owner => new AsyncedUser((JObject)doc.GetProperty("owner"));
+        public string CreatedAt => Convert.ToString(doc.GetProperty("created_at"));
+        public int Priority => Convert.ToInt32(doc.GetProperty("priority"));
         public bool Read => (bool)doc.GetProperty("read");
 
         // Content.
@@ -339,16 +339,28 @@ namespace Base
         public string CourseId => (string)doc.GetProperty("course_id");
 
         // Metadata.
-        public User Owner => new AsyncedUser((Dictionary<string, object>)doc.GetProperty("owner"));
-        public string CreatedAt => (string)doc.GetProperty("created_at");
+		public User Owner => new AsyncedUser((JObject)doc.GetProperty("owner"));
+        public string CreatedAt => Convert.ToString(doc.GetProperty("created_at"));
         public string Title => (string)doc.GetProperty("title");
         public string Description => (string)doc.GetProperty("description");
-        public List<string> Category => (List<string>)doc.GetProperty("category");
+		public List<string> Category {
+			get {
+				var categories = new List<string> ();
+				var objList =  (IEnumerable<object>)doc.GetProperty("category");
+
+				foreach (var obj in objList) {
+					categories.Add ((string)((JValue)obj).Value);
+				}
+				return categories;
+
+			}
+		}
+
         public bool Read => (bool)doc.GetProperty("read");
 
         // Content.
         public string Filename => (string)doc.GetProperty("filename");
-		public int Size => Convert.ToInt32(doc.GetProperty("size"));
+        public int Size => Convert.ToInt32(doc.GetProperty("size"));
         public string DownloadUrl => (string)doc.GetProperty("download_url");
 
         public File (Dictionary<string, object> vals)
@@ -375,17 +387,17 @@ namespace Base
 
     public class Attachment: ResourceBase
     {
-		public string Filename { get; set; }
-		public int Size { get; set; }
-		public string DownloadUrl { get; set; }
+        public string Filename { get; set; }
+        public int Size { get; set; }
+        public string DownloadUrl { get; set; }
 
-		public Attachment (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
+        public Attachment (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
 
         public Attachment (Dictionary<string, object> vals)
         {
-			Filename = Convert.ToString(vals["filename"]);
-			Size = Convert.ToInt32(vals["size"]);
-			DownloadUrl = Convert.ToString(vals["download_url"]);
+            Filename = Convert.ToString(vals["filename"]);
+            Size = Convert.ToInt32(vals["size"]);
+            DownloadUrl = Convert.ToString(vals["download_url"]);
         }
 
         // public static Dictionary<string, object> ResolveNewData(Dictionary<string, object> vals) => vals;
@@ -401,33 +413,33 @@ namespace Base
         public string OwnerId { get; }
 
         // Metadata.
-		public User Owner => new AsyncedUser((JObject)doc.GetProperty("owner"));
-		public string CreatedAt => (string)doc.GetProperty("created_at");
+        public User Owner => new AsyncedUser((JObject)doc.GetProperty("owner"));
+		public string CreatedAt => Convert.ToString(doc.GetProperty("created_at"));
         public bool Late => (bool)doc.GetProperty("late");
 
         // Content.
         public string Body => (string)doc.GetProperty("body");
-		public Attachment Attachment => new Attachment((JObject)doc.GetProperty("attachment"));
+        public Attachment Attachment => new Attachment((JObject)doc.GetProperty("attachment"));
 
         // Scoring metadata.
-		public User MarkedBy => new AsyncedUser((JObject)doc.GetProperty("marked_by"));
+        public User MarkedBy => new AsyncedUser((JObject)doc.GetProperty("marked_by"));
         public string MarkedAt => (string)doc.GetProperty("marked_at");
 
         // Scoring content.
-		public double Mark => (double)doc.GetProperty("mark");
+        public double Mark => (double)doc.GetProperty("mark");
         public string Comment => (string)doc.GetProperty("comment");
-		public Attachment CommentAttachment => new Attachment((JObject)doc.GetProperty("comment_attachment"));
+        public Attachment CommentAttachment => new Attachment((JObject)doc.GetProperty("comment_attachment"));
 
-		public Submission (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
+        public Submission (JObject obj) : this(obj.ToObject<Dictionary<string, object>>()) {}
 
         public Submission (Dictionary<string, object> vals)
         {
-			string id = (string)vals["id"];
-			char[] seperator = {'/'};
-			string[] words = id.Split(seperator, 2);
+            string id = (string)vals["id"];
+            char[] seperator = {'/'};
+            string[] words = id.Split(seperator, 2);
 
-			HomeworkId = words[0];
-			OwnerId = words[1];
+            HomeworkId = words[0];
+            OwnerId = words[1];
 
             doc = database.GetExistingDocument(id);
             if (doc == null) { throw new LearnBaseException("Id not exist!"); }
@@ -472,30 +484,30 @@ namespace Base
         public string CourseId => (string)doc.GetProperty("course_id");
 
         // Metadata.
-		public string CreatedAt => (string)doc.GetProperty("created_at");
-        public string BeginAt => (string)doc.GetProperty("begin_at");
-        public string DueAt => (string)doc.GetProperty("due_at");
-		public int SubmittedCount => Convert.ToInt32(doc.GetProperty("submitted_count"));
-		public int NotSubmittedCount => Convert.ToInt32(doc.GetProperty("not_submitted_count"));
-		public int SeenCount => Convert.ToInt32(doc.GetProperty("seen_count"));
-		public int MarkedCount => Convert.ToInt32(doc.GetProperty("marked_count"));
+		public string CreatedAt => Convert.ToString(doc.GetProperty("created_at"));
+		public string BeginAt => Convert.ToString(doc.GetProperty("begin_at"));
+		public string DueAt => Convert.ToString(doc.GetProperty("due_at"));
+        public int SubmittedCount => Convert.ToInt32(doc.GetProperty("submitted_count"));
+        public int NotSubmittedCount => Convert.ToInt32(doc.GetProperty("not_submitted_count"));
+        public int SeenCount => Convert.ToInt32(doc.GetProperty("seen_count"));
+        public int MarkedCount => Convert.ToInt32(doc.GetProperty("marked_count"));
 
         // Content.
-		public string Title => (string)doc.GetProperty("title");
+        public string Title => (string)doc.GetProperty("title");
         public string Body => (string)doc.GetProperty("body");
-		public Attachment Attachment => new Attachment((JObject)doc.GetProperty("attachment"));
+        public Attachment Attachment => new Attachment((JObject)doc.GetProperty("attachment"));
 
         // Submissions.
-		public List<Submission> Submissions
+        public List<Submission> Submissions
         {
             get
-			{
-				var submissions = new List<Submission> ();
-				var objList =  (IEnumerable<object>)doc.GetProperty("submissions");
+            {
+                var submissions = new List<Submission> ();
+                var objList =  (IEnumerable<object>)doc.GetProperty("submissions");
 
-				foreach (var obj in objList) {
-					submissions.Add (new Submission ((JObject)obj));
-				}
+                foreach (var obj in objList) {
+                    submissions.Add (new Submission ((JObject)obj));
+                }
                 return submissions;
             }
         }
