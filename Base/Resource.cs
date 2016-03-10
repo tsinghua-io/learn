@@ -243,7 +243,21 @@ namespace Base
 
     public class Announcement: ResourceBase
     {
-        public static Database database = Globals.manager.GetDatabase("announcements");
+        public static Database database
+        {
+            get
+            {
+                var db = Globals.manager.GetDatabase("announcements");
+                var view = db.GetView("announcementsByCourseId");
+                view.SetMap((doc, emit) =>
+                {
+                    var courseId = (string)doc["course_id"];
+                    var id = (string)doc["id"];
+                    emit(courseId, id);
+                }, "1");
+                return db;
+            }
+        }
         private Document doc;
 
         // Identifiers.
@@ -284,7 +298,21 @@ namespace Base
 
     public class File: ResourceBase
     {
-        public static Database database = Globals.manager.GetDatabase("files");
+        public static Database database
+        {
+            get
+            {
+                var db = Globals.manager.GetDatabase("files");
+                var view = db.GetView("filesByCourseId");
+                view.SetMap((doc, emit) =>
+                {
+                    var courseId = (string)doc["course_id"];
+                    var id = (string)doc["id"];
+                    emit(courseId, id);
+                }, "1");
+                return db;
+            }
+        }
         private Document doc;
 
         // Identifiers.
@@ -398,7 +426,21 @@ namespace Base
 
     public class Homework: ResourceBase
     {
-        public static Database database = Globals.manager.GetDatabase("homeworks");
+        public static Database database
+        {
+            get
+            {
+                var db = Globals.manager.GetDatabase("homeworks");
+                var view = db.GetView("homeworksByCourseId");
+                view.SetMap((doc, emit) =>
+                {
+                    var courseId = (string)doc["course_id"];
+                    var id = (string)doc["id"];
+                    emit(courseId, id);
+                }, "1");
+                return db;
+            }
+        }
         private Document doc;
 
         // Identifiers.
