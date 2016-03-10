@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using Newtonsoft.Json;
 
@@ -250,17 +251,60 @@ namespace Base
 	{
 		private APIWrapper apiWrapper;
 
+		public bool Verbose { get; set; }
+
 		public UpdateAgent (string baseUrl, string userName, string password)
 		{
 			apiWrapper = new APIWrapper (baseUrl, userName, password);
 		}
 
 		public bool UpdateAll() {
-			bool profileStatus, attendedStatus; //, homeworkStatus;
-			profileStatus = UpdateProfile ();
-			attendedStatus = UpdateAttended ("all");
-			//homeworkStatus = UpdateCourseHomeworks ("123514"); // for test
-			return attendedStatus && profileStatus;// && homeworkStatus;
+			var profileStatus = UpdateProfile ();
+			var coursesStatus = UpdateCourses ("all");
+			// UpdateCourseHomeworks ("123514"); // for test
+			return profileStatus && coursesStatus;
+		}
+
+		public bool UpdateNow() {
+			var profileStatus = UpdateProfile ();
+			var coursesStatus = UpdateCourses ("now");
+			return profileStatus && coursesStatus;
+		}
+
+		public bool UpdateCourses (string semester) {
+			List<string> courseIds;
+			bool status = true;
+			bool attendedStatus = UpdateAttended (semester, out courseIds);
+
+			if (attendedStatus) {
+				foreach (var courseId in courseIds) {
+					status = UpdateCourseHomeworks (courseId) && status;
+					status = UpdateCourseFiles (courseId) && status;
+					status = UpdateCourseAnnouncements (courseId) && status;
+				}
+			}
+			return status;
+		}
+
+		public bool UpdateAttended (string semester, out List<string> courseIds)
+		{
+			string jsonString;
+			var status = apiWrapper.GetAttended (semester, out jsonString);
+			if (!status.IsScuccessStatusCode ()) {
+				// Get attended information fail
+				Console.WriteLine ("Failed updating attended courses for semester (%s): status %s",
+					semester, status); // warning
+				courseIds = null;
+				return false;
+			} else {
+				var courses = JsonConvert.DeserializeObject<List<Trivial.Course>> (jsonString);
+				foreach (var course in courses) {
+					// Console.WriteLine (course.Id);
+					course.Save ();
+				}
+				courseIds = courses.Select (c => c.Id).ToList();
+				return true;
+			}
 		}
 
 		public bool UpdateProfile ()
@@ -268,7 +312,8 @@ namespace Base
 			string jsonString;
 			var status = apiWrapper.GetProfile (out jsonString);
 			if (!status.IsScuccessStatusCode ()) {
-				// Get profile information fail
+				// Get profile information fail, log if Verbose
+				Console.WriteLine ("Failed updating profile: status %s", status); // warning
 				return false;
 			} else {
 				// Fixme: error handling
@@ -278,33 +323,17 @@ namespace Base
 			}
 		}
 
-		public bool UpdateAttended (string semester)
-		{
-			string jsonString;
-			var status = apiWrapper.GetAttended (semester, out jsonString);
-			if (!status.IsScuccessStatusCode ()) {
-				// Get attended information fail
-				return false;
-			} else {
-				var courses = JsonConvert.DeserializeObject<List<Trivial.Course>> (jsonString);
-				foreach (var course in courses) {
-					// Console.WriteLine (course.Id);
-					course.Save ();
-				}
-				return true;
-			}
-		}
-
 		public bool UpdateCourseHomeworks (string courseId) {
 			string jsonString;
 			var status = apiWrapper.GetHomeworks (courseId, out jsonString);
 
 			if (!status.IsScuccessStatusCode ()) {
+				Console.WriteLine ("Failed updating homeworks for course %s: status %s.", courseId, status); // warning
 				return false;
 			} else {
 				var homeworks = JsonConvert.DeserializeObject<List<Trivial.Homework>> (jsonString);
 				foreach (var homework in homeworks) {
-					// Console.WriteLine (homework.Id);
+					Console.WriteLine ("{0}:{1}",homework.Id,courseId);
 					homework.Save ();
 				}
 				return true;
@@ -315,11 +344,14 @@ namespace Base
 			string jsonString;
 			var status = apiWrapper.GetFiles (courseId, out jsonString);
 			if (!status.IsScuccessStatusCode ()) {
+				Console.WriteLine ("Failed updating files for course %s: status %s.", courseId, status); // warning
 				return false;
 			} else {
 				var files = JsonConvert.DeserializeObject<List<Trivial.File>> (jsonString);
-				foreach (var file in files) {
-					file.Save ();
+				if (files != null) { // why null here
+					foreach (var file in files) {
+						file.Save ();
+					}
 				}
 				return true;
 			}
@@ -329,11 +361,12 @@ namespace Base
 			string jsonString;
 			var status = apiWrapper.GetAnnouncements (courseId, out jsonString);
 			if (!status.IsScuccessStatusCode ()) {
+				Console.WriteLine ("Failed updating announcements for course %s: status %s.", courseId, status); // warning
 				return false;
 			} else {
 				var announcements = JsonConvert.DeserializeObject<List<Trivial.Announcement>> (jsonString);
-				foreach (var an in announcements) {
-					an.Save ();
+				foreach (var ann in announcements) {
+					ann.Save ();
 				}
 				return true;
 			}
