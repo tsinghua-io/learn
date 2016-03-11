@@ -37,11 +37,6 @@ namespace Base
 
     public abstract class ResourceBase
     {
-        public static IDictionary<string, object> Update (IDictionary<string, object> original, IDictionary<string, object> newDict)
-        {
-            newDict.ToList().ForEach(item => original[item.Key] = item.Value);
-            return original;
-        }
 
         public override string ToString ()
         {
@@ -87,7 +82,7 @@ namespace Base
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
-                properties = Update(properties, vals);
+				properties.Update(vals);
                 return true;
             });
 
@@ -251,7 +246,7 @@ namespace Base
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
-                properties = Update(properties, vals);
+                properties.Update(vals);
                 return true;
             });
 
@@ -307,7 +302,7 @@ namespace Base
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
-                properties = Update(properties, vals);
+                properties.Update(vals);
                 return true;
             });
 
@@ -377,7 +372,7 @@ namespace Base
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
-                properties = Update(properties, vals);
+                properties.Update(vals);
                 return true;
             });
 
@@ -452,7 +447,7 @@ namespace Base
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
-                properties = Update(properties, vals);
+                properties.Update(vals);
                 return true;
             });
 
@@ -526,7 +521,7 @@ namespace Base
             doc.Update((UnsavedRevision newRevision) =>
             {
                 var properties = newRevision.Properties;
-                properties = Update(properties, vals);
+                properties.Update(vals);
                 return true;
             });
 
