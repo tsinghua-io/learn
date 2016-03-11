@@ -14,27 +14,40 @@ namespace LearnConsole
 		public bool detail { get; set; }
 	}
 
-	[Verb ("config", HelpText = "Get and set configurations.")]
-	public class ConfigOptions{
-		
-	}
-
-	[Verb ("update", HelpText = "Update all data.")]
-	public class UpdateOptions
+	[Verb ("config", HelpText = "Set or list configurations.")]
+	public class ConfigOptions
 	{
-		[Option ('u', "user", Required = true, HelpText = "The username.")]
-		public string User { get; set; }
+		[Option ('l', "list", HelpText = "List all the configurations.")]
+		public bool List { get; set; }
 
-		[Option ('p', "password", Required = true, HelpText = "The password.")]
+		[Option ('u', "username", HelpText = "Set the username configuration.")]
+		public string Username { get; set; }
+
+		[Option ('p', "password", HelpText = "Set the password configuration.")]
 		public string Password { get; set; }
 
-		[Option ('s', "server", HelpText = "The server address.", Default = "http://localhost")]
+		[Option ('s', "server", HelpText = "Set the proxy server address configuration.")]
 		public string Server { get; set; }
+	}
 
+	[Verb ("update", HelpText = "Update data.")]
+	public class UpdateOptions
+	{
+		//		[Option ('u', "user", Required = true, HelpText = "The username.")]
+		//		public string User { get; set; }
+		//
+		//		[Option ('p', "password", Required = true, HelpText = "The password.")]
+		//		public string Password { get; set; }
+		//
+		//		[Option ('s', "server", HelpText = "The server address.", Default = "http://localhost")]
+		//		public string Server { get; set; }
+
+		// not implemented yet
 		[Option ('v', "verbose", HelpText = "Verbosely print out the update informations.")]
 		public bool Verbose { get; set; }
 
-		[Option ('a', "all", HelpText = "Update all informations of all courses.")]
+		[Option ('a', "all", HelpText = "Update all informations of all attended courses." +
+			"If not set, update all informations of attending courses.")]
 		public bool All { get; set; }
 	}
 
@@ -83,16 +96,20 @@ namespace LearnConsole
 
 	public class LearnConsole
 	{
-		public static APIWrapper GetApiWrapper (UpdateOptions options)
+		public static UpdateAgent GetUpdateAgent ()
 		{
-			LogInfo ("Using proxy server", options.Server);
-			return new APIWrapper (options.Server, options.User, options.Password);
-		}
+			var cfg = new Base.Configuration ();
+			var lackConfig = cfg.LackConfig;
 
-		public static UpdateAgent GetUpdateAgent (UpdateOptions options)
-		{
-			LogInfo ("Using proxy server", options.Server);
-			return new UpdateAgent (options.Server, options.User, options.Password);
+			if (lackConfig.Count == 0) {
+				LogInfo ("Using proxy server", cfg.Server);
+				return new UpdateAgent (cfg.Server, cfg.Username, cfg.Password);
+			} else {
+				// Configuration is not complete
+				Console.WriteLine ("Configuration is not complete: lack configuration: {0}.",
+					String.Join (", ", lackConfig));
+				return null;
+			}
 		}
 
 		public static int Main (string[] args)
@@ -100,7 +117,7 @@ namespace LearnConsole
 			return Parser.Default.ParseArguments<
                 UpdateOptions, AnnouncementOptions, FileOptions,
 				HomeworkOptions, ProfileOptions, AttendOptions,
-				CourseInfoOptions> (args).MapResult (
+				CourseInfoOptions, ConfigOptions> (args).MapResult (
 				(UpdateOptions opts) => Update (opts),
 				(AnnouncementOptions opts) => Announcement (opts),
 				(FileOptions opts) => File (opts),
@@ -108,17 +125,52 @@ namespace LearnConsole
 				(ProfileOptions opts) => Profile (opts),
 				(AttendOptions opts) => Attend (opts),
 				(CourseInfoOptions opts) => Info (opts),
+				(ConfigOptions opts) => Config (opts),
 				errs => 1);
+		}
+
+		public static int Config (ConfigOptions opts)
+		{
+			if (opts.List) {
+				// List configuration
+				var cfg = new Base.Configuration ();
+				Console.WriteLine (cfg);
+			} else {
+				// Set configuration
+				var updateDict = new Dictionary<string, object> ();
+				if (opts.Username != null) {
+					updateDict ["username"] = opts.Username;
+				}
+				if (opts.Password != null) {
+					updateDict ["password"] = opts.Password;
+				}
+				if (opts.Server != null) {
+					updateDict ["server"] = opts.Server;
+				}
+				if (updateDict.Count > 0) {
+					// Update the configuration
+					Base.Configuration.UpdateConfiguration (updateDict);
+				} else {
+					Console.WriteLine ("Subcommand \"config\" receives at least one option. " +
+					"See \"--help\" for help."); // error
+				}
+			}
+			return 0;
 		}
 
 		public static int Update (UpdateOptions opts)
 		{
-			Console.WriteLine ("Start updating");
+			Console.WriteLine ("Start updating...");
+			var updateAgent = GetUpdateAgent ();
+			if (updateAgent == null) {
+				return 1;
+			}
+
 			bool status;
 			if (opts.All) {
-				status = GetUpdateAgent (opts).UpdateAll ();
+				status = updateAgent.UpdateAll ();
 			} else {
-				status = GetUpdateAgent (opts).UpdateNow ();
+				status = updateAgent.UpdateNow ();
 			}
 			if (!status) {
 				Console.WriteLine ("Finish updating, but some update failed.");
@@ -136,7 +188,7 @@ namespace LearnConsole
 
 			var annIds = query.Run ().Select (x => x.Value);
 			var anns = annIds.Select (id => new Base.Announcement (
-				new Dictionary<string, object> { { "id", id } })).ToList<Base.Announcement> ();
+				           new Dictionary<string, object> { { "id", id } })).ToList<Base.Announcement> ();
 
 			if (!opts.detail) {
 				anns.ForEach (a => Console.WriteLine ("{0,-10} | {1}", a.Id, a.Title));	
@@ -154,7 +206,7 @@ namespace LearnConsole
 
 			var fileIds = query.Run ().Select (x => x.Value);
 			var files = fileIds.Select (id => new Base.File (
-				new Dictionary<string, object> { { "id", id } })).ToList<Base.File> ();
+				            new Dictionary<string, object> { { "id", id } })).ToList<Base.File> ();
 
 			if (!opts.detail) {
 				files.ForEach (f => Console.WriteLine ("{0,-10} | {1}", f.Id, f.Title));	
@@ -172,7 +224,7 @@ namespace LearnConsole
 
 			var homeworkIds = query.Run ().Select (x => x.Value);
 			var homeworks = homeworkIds.Select (id => new Base.Homework (
-				new Dictionary<string, object> { { "id", id } })).ToList<Base.Homework> ();
+				                new Dictionary<string, object> { { "id", id } })).ToList<Base.Homework> ();
 
 			if (!opts.detail) {
 				homeworks.ForEach (h => Console.WriteLine ("{0,-10} | {1}", h.Id, h.Title));	
@@ -182,11 +234,11 @@ namespace LearnConsole
 			return 0;
 		}
 
-		public static int Info (CourseInfoOptions opts) 
+		public static int Info (CourseInfoOptions opts)
 		{
 			try {
-				var course = new Base.Course(new Dictionary<string, object>() {
-					{"id", opts.Course}
+				var course = new Base.Course (new Dictionary<string, object> () {
+					{ "id", opts.Course }
 				});
 				Console.WriteLine (course);
 				return 0;
@@ -200,7 +252,7 @@ namespace LearnConsole
 		{
 			return 0;
 		}
-			
+
 		public static int Attend (AttendOptions opts)
 		{
 			string semester = opts.semester ?? "all";

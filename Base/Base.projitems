@@ -13,5 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Resource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UpdateAgent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LearnExceptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Configuration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GeneralExtensions.cs" />
   </ItemGroup>
 </Project>

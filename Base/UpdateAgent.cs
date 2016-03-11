@@ -261,7 +261,6 @@ namespace Base
 		public bool UpdateAll() {
 			var profileStatus = UpdateProfile ();
 			var coursesStatus = UpdateCourses ("all");
-			// UpdateCourseHomeworks ("123514"); // for test
 			return profileStatus && coursesStatus;
 		}
 
@@ -292,7 +291,7 @@ namespace Base
 			var status = apiWrapper.GetAttended (semester, out jsonString);
 			if (!status.IsScuccessStatusCode ()) {
 				// Get attended information fail
-				Console.WriteLine ("Failed updating attended courses for semester (%s): status %s",
+				Console.WriteLine ("Failed updating attended courses for semester (0): status {1}",
 					semester, status); // warning
 				courseIds = null;
 				return false;
@@ -313,7 +312,7 @@ namespace Base
 			var status = apiWrapper.GetProfile (out jsonString);
 			if (!status.IsScuccessStatusCode ()) {
 				// Get profile information fail, log if Verbose
-				Console.WriteLine ("Failed updating profile: status %s", status); // warning
+				Console.WriteLine ("Failed updating profile: status {0}", status); // warning
 				return false;
 			} else {
 				// Fixme: error handling
@@ -328,12 +327,11 @@ namespace Base
 			var status = apiWrapper.GetHomeworks (courseId, out jsonString);
 
 			if (!status.IsScuccessStatusCode ()) {
-				Console.WriteLine ("Failed updating homeworks for course %s: status %s.", courseId, status); // warning
+				Console.WriteLine ("Failed updating homeworks for course {0}: status {1}.", courseId, status); // warning
 				return false;
 			} else {
 				var homeworks = JsonConvert.DeserializeObject<List<Trivial.Homework>> (jsonString);
 				foreach (var homework in homeworks) {
-					Console.WriteLine ("{0}:{1}",homework.Id,courseId);
 					homework.Save ();
 				}
 				return true;
@@ -344,7 +342,7 @@ namespace Base
 			string jsonString;
 			var status = apiWrapper.GetFiles (courseId, out jsonString);
 			if (!status.IsScuccessStatusCode ()) {
-				Console.WriteLine ("Failed updating files for course %s: status %s.", courseId, status); // warning
+				Console.WriteLine ("Failed updating files for course {0}: status {1}.", courseId, status); // warning
 				return false;
 			} else {
 				var files = JsonConvert.DeserializeObject<List<Trivial.File>> (jsonString);
@@ -361,7 +359,7 @@ namespace Base
 			string jsonString;
 			var status = apiWrapper.GetAnnouncements (courseId, out jsonString);
 			if (!status.IsScuccessStatusCode ()) {
-				Console.WriteLine ("Failed updating announcements for course %s: status %s.", courseId, status); // warning
+				Console.WriteLine ("Failed updating announcements for course {0}: status {1}.", courseId, status); // warning
 				return false;
 			} else {
 				var announcements = JsonConvert.DeserializeObject<List<Trivial.Announcement>> (jsonString);
