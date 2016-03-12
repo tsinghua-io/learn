@@ -14,40 +14,28 @@ namespace LearnConsole
 		public bool detail { get; set; }
 	}
 
-	[Verb ("config", HelpText = "Set or list configurations.")]
+	[Verb ("config", HelpText = "Get/set/list configurations.")]
 	public class ConfigOptions
 	{
 		[Option ('l', "list", HelpText = "List all the configurations.")]
 		public bool List { get; set; }
 
-		[Option ('u', "username", HelpText = "Set the username configuration.")]
-		public string Username { get; set; }
+		[Value (0, MetaName = "NAME", HelpText = "The name of the configuration.")]
+		public string Name { get; set; }
 
-		[Option ('p', "password", HelpText = "Set the password configuration.")]
-		public string Password { get; set; }
-
-		[Option ('s', "server", HelpText = "Set the proxy server address configuration.")]
-		public string Server { get; set; }
+		[Value (1, MetaName = "VALUE", HelpText = "If exists, will be the new value of the configuration.")]
+		public string Value { get; set; }
 	}
 
 	[Verb ("update", HelpText = "Update data.")]
 	public class UpdateOptions
 	{
-		//		[Option ('u', "user", Required = true, HelpText = "The username.")]
-		//		public string User { get; set; }
-		//
-		//		[Option ('p', "password", Required = true, HelpText = "The password.")]
-		//		public string Password { get; set; }
-		//
-		//		[Option ('s', "server", HelpText = "The server address.", Default = "http://localhost")]
-		//		public string Server { get; set; }
-
 		// not implemented yet
 		[Option ('v', "verbose", HelpText = "Verbosely print out the update informations.")]
 		public bool Verbose { get; set; }
 
 		[Option ('a', "all", HelpText = "Update all informations of all attended courses." +
-			"If not set, update all informations of attending courses.")]
+		"If not set, update all informations of attending courses.")]
 		public bool All { get; set; }
 	}
 
@@ -103,7 +91,8 @@ namespace LearnConsole
 
 			if (lackConfig.Count == 0) {
 				LogInfo ("Using proxy server", cfg.Server);
-				return new UpdateAgent (cfg.Server, cfg.Username, cfg.Password);
+				var password = ReadPassword ("Password for tsinghua's learning website: ");
+				return new UpdateAgent (cfg.Server, cfg.Username, password);
 			} else {
 				// Configuration is not complete
 				Console.WriteLine ("Configuration is not complete: lack configuration: {0}.",
@@ -112,6 +101,33 @@ namespace LearnConsole
 			}
 		}
 
+		/// <summary>Read password from console</summary>
+		/// http://stackoverflow.com/questions/29201697/hide-replace-when-typing-a-password-c
+		public static string ReadPassword (string prompt)
+		{
+			string password = "";
+			Console.Write (prompt); // write prompt
+			ConsoleKeyInfo info = Console.ReadKey (true);
+			while (info.Key != ConsoleKey.Enter) {
+				if (info.Key != ConsoleKey.Backspace) {
+					password += info.KeyChar;
+				} else if (info.Key == ConsoleKey.Backspace) {
+					if (!string.IsNullOrEmpty (password)) {
+						// remove one character from the list of password characters
+						password = password.Substring (0, password.Length - 1);
+					}
+				}
+				info = Console.ReadKey (true);
+			}
+			// add a new line
+			Console.WriteLine ();
+			return password;
+		}
+
+		/// <summary>
+		/// Learn-Console's Entry Point.
+		/// </summary>
+		/// <param name="args">Command line arguments splitted by the system.</param>
 		public static int Main (string[] args)
 		{
 			return Parser.Default.ParseArguments<
@@ -136,24 +152,21 @@ namespace LearnConsole
 				var cfg = new Base.Configuration ();
 				Console.WriteLine (cfg);
 			} else {
-				// Set configuration
-				var updateDict = new Dictionary<string, object> ();
-				if (opts.Username != null) {
-					updateDict ["username"] = opts.Username;
-				}
-				if (opts.Password != null) {
-					updateDict ["password"] = opts.Password;
-				}
-				if (opts.Server != null) {
-					updateDict ["server"] = opts.Server;
-				}
-				if (updateDict.Count > 0) {
-					// Update the configuration
-					Base.Configuration.UpdateConfiguration (updateDict);
+				if (opts.Name == null) {
+					Console.WriteLine ("Wrong arguments, see \"--help\" for help.");
 				} else {
-					Console.WriteLine ("Subcommand \"config\" receives at least one option. " +
-					"See \"--help\" for help."); // error
+					if (opts.Value == null) {
+						// Get configuration
+						Console.WriteLine (Base.Configuration.GetConfiguration (opts.Name));
+					} else {
+						// Set configuration
+						var updateDict = new Dictionary<string, object> () {
+							{ opts.Name, opts.Value }
+						};
+						Base.Configuration.UpdateConfiguration (updateDict);
+					}
 				}
+
 			}
 			return 0;
 		}

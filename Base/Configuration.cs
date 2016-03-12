@@ -17,17 +17,21 @@ namespace Base
 		private static Document doc = database.GetDocument(docId);
 
 		// Configurations
-		public string Username => (string)(doc.GetProperty("username")??"");
-		public string Password => (string)(doc.GetProperty("password")??"");
-		public string Server => (string)(doc.GetProperty("server")??"");
+		public string Username => GetConfiguration("username");
+		public string Server => GetConfiguration("server");
 
-		public static List<string> ALL_CONFIG = new List<string>() {"Username", "Password", "Server"};
-		public static List<string> REQUIRED_CONFIG = new List<string>() {"Username", "Password", "Server"};
+		public static List<string> ALL_CONFIG = new List<string>() {"Username", "Server"};
+		public static List<string> REQUIRED_CONFIG = new List<string>() {"Username", "Server"};
 
 		public List<string> LackConfig => REQUIRED_CONFIG
 			.Where(cfgName =>
 				(string)(this.GetType().GetProperty(cfgName).GetValue(this)) == "")
 			.ToList();
+
+		public static string GetConfiguration (string name)
+		{
+			return (string)(doc.GetProperty(name)??"");
+		}
 
 		public override string ToString ()
 		{
@@ -38,7 +42,7 @@ namespace Base
 				var name = p.Name;
 				var value = p.GetValue (this);
 				if (value != null) {
-					sb.AppendFormat ("{0,-10}: {1}\n", name, value.ToString());
+					sb.AppendFormat ("{0,-10}: {1}\n", name.ToLower(), value.ToString());
 				}
 			}
 			return sb.ToString ();    

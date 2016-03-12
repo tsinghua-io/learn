@@ -7,9 +7,9 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle ("Learn-Console")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("")]
+[assembly: AssemblyCompany ("tsinghua-io")]
 [assembly: AssemblyProduct ("")]
-[assembly: AssemblyCopyright ("Nuullll")]
+[assembly: AssemblyCopyright ("Copyright (C) 2016 tsinghua-io")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 
