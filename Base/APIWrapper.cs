@@ -32,9 +32,21 @@ namespace Base
 			{ "User-Agent", "learnAPIWrapper/1.0" }
 		};
 
+		/// <summary>
+		/// Constructor of APIWrapper
+		/// </summary>
+		/// <param name="baseUrl">URL of the proxy server.</param>
+		/// <param name="userName">User name.</param>
+		/// <param name="password">Password.</param>
+		/// <exception cref="Base.APIWrapperException">Throw exception when baseUrl is ill-formatted.</exception>
 		public APIWrapper (string baseUrl, string userName, string password)
 		{
-			client = new RestClient (baseUrl);
+			try {
+				client = new RestClient (baseUrl);
+			} catch (Exception e) {
+				throw new APIWrapperException ("Constructing web client failed.", e);
+			}
+
 			client.Authenticator = new HttpBasicAuthenticator (userName, password);
 		}
 
@@ -64,6 +76,13 @@ namespace Base
 			return get (announcementsUrl, out jsonString, new Dictionary<string, string> () { { "courseId", courseId } });
 		}
 
+		/// <summary>
+		/// Get the response from the proxy server.
+		/// </summary>
+		/// <param name="path">Path.</param>
+		/// <param name="jsonString">The json string that the proxy server return.</param>
+		/// <param name="segs">Segments in the URL.</param>
+		/// <param name="queries">GET queries.</param>
 		private HttpStatusCode get (string path, out string jsonString, 
 		                            Dictionary<string, string> segs = null, Dictionary<string, string> queries = null)
 		{
@@ -90,7 +109,7 @@ namespace Base
 			// Handling errors
 			if (response.ErrorException != null) {
 				const string message = "Error retrieving response.  Check inner details for more info.";
-				throw new ApplicationException (message, response.ErrorException);
+				throw new APIWrapperException (message, response.ErrorException);
 			}
 
 			jsonString = response.Content;

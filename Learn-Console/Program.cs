@@ -90,9 +90,8 @@ namespace LearnConsole
 			var lackConfig = cfg.LackConfig;
 
 			if (lackConfig.Count == 0) {
-				LogInfo ("Using proxy server", cfg.Server);
 				var password = ReadPassword ("Password for tsinghua's learning website: ");
-				return new UpdateAgent (cfg.Server, cfg.Username, password);
+				return UpdateAgent.TryGetUpdateAgent (cfg.Server, cfg.Username, password);
 			} else {
 				// Configuration is not complete
 				Console.WriteLine ("Configuration is not complete: lack configuration: {0}.",

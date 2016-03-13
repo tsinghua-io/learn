@@ -28,11 +28,6 @@ namespace Base
             sb.AppendLine ("-----------------");
             return sb.ToString ();
         }
-
-        public static string AddTabEachLine (this string str)
-        {
-            return str.Trim().Split ('\n').Select (s => "\t" + s).Aggregate ((i, j) => i + "\n" + j) + "\n";
-        }
     }
 
     public abstract class ResourceBase
