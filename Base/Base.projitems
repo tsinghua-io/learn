@@ -15,5 +15,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)LearnExceptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Configuration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GeneralExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Course.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\User.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Announcement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\File.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Assignment.cs" />
   </ItemGroup>
 </Project>
