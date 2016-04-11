@@ -16,13 +16,6 @@ namespace LearnTsinghua.Models
 
     public class Course
     {
-        public Course()
-        {
-            Schedules = new List<Schedule>();
-            Teachers = new List<User>();
-            Assistants = new List<User>();
-        }
-
         // Identifires.
         public string Id { get; set; }
 
@@ -42,11 +35,11 @@ namespace LearnTsinghua.Models
 
         public string Description { get; set; }
 
-        public IList<Schedule> Schedules { get; set; }
+        public List<Schedule> Schedules { get; set; }
 
-        public IList<User> Teachers { get; set; }
+        public List<User> Teachers { get; set; }
 
-        public IList<User> Assistants { get; set; }
+        public List<User> Assistants { get; set; }
     }
 
     public class LocalCourse: Course

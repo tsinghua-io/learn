@@ -14,11 +14,6 @@ namespace LearnTsinghua.Models
 
     public class Submission
     {
-        public Submission()
-        {
-            Mark = (float)Double.NaN;
-        }
-
         // Metadata.
         public User Owner { get; set; }
 
@@ -42,7 +37,7 @@ namespace LearnTsinghua.Models
 
 
         // Marking content.
-        public float Mark { get; set; }
+        public float? Mark { get; set; }
 
         public string Comment { get; set; }
 

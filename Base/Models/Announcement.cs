@@ -26,8 +26,6 @@ namespace LearnTsinghua.Models
 
     public class LocalAnnouncement: Announcement
     {
-        public bool Read { get; set; }
-
         public DateTime UpdatedAt { get; set; }
     }
 }

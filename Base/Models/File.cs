@@ -5,11 +5,6 @@ namespace LearnTsinghua.Models
 {
     public class File
     {
-        public File()
-        {
-            Category = new List<string>();
-        }
-
         // Identifiers.
         public string Id { get; set; }
 
@@ -25,7 +20,7 @@ namespace LearnTsinghua.Models
 
         public string Description { get; set; }
 
-        public IList<string> Category { get; set; }
+        public List<string> Category { get; set; }
 
 
         // Content.

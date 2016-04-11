@@ -6,7 +6,7 @@
     <SharedGUID>{D604A964-26ED-4541-924F-9031B8737349}</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Base</Import_RootNamespace>
+    <Import_RootNamespace>LearnTsinghua</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)APIWrapper.cs" />
@@ -21,8 +21,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\File.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Assignment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\API.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\Database.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\AppConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Couchbase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Services\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Extensions\" />
   </ItemGroup>
 </Project>
