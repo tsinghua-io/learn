@@ -35,4 +35,9 @@ namespace LearnTsinghua.Models
 
         public string DownloadURL { get; set; }
     }
+
+    public class LocalFile: File
+    {
+        public DateTime UpdatedAt { get; set; }
+    }
 }

@@ -74,4 +74,12 @@ namespace LearnTsinghua.Models
 
         public Submission Submission { get; set; }
     }
+
+    public class LocalAssignment: Assignment
+    {
+        // Mark as done, not matter what.
+        public bool Done { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
+    }
 }

@@ -23,4 +23,11 @@ namespace LearnTsinghua.Models
 
         public string Body { get; set; }
     }
+
+    public class LocalAnnouncement: Announcement
+    {
+        public bool Read { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
+    }
 }

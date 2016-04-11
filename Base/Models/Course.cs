@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace LearnTsinghua.Models
@@ -46,5 +47,16 @@ namespace LearnTsinghua.Models
         public IList<User> Teachers { get; set; }
 
         public IList<User> Assistants { get; set; }
+    }
+
+    public class LocalCourse: Course
+    {
+        public string Abbreviation { get; set; }
+
+        // Do not show in the course list.
+        public bool Hide { get; set; }
+
+        // Do not disturb.
+        public bool Quiet { get; set; }
     }
 }
