@@ -4,7 +4,7 @@ using RestSharp.Authenticators;
 using RestSharp;
 using LearnTsinghua.Models;
 
-namespace LearnTsinghua.API
+namespace LearnTsinghua.Services
 {
     public class API
     {

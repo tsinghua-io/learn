@@ -20,9 +20,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Announcement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\File.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Assignment.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)API\API.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\API.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)API\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Services\" />
   </ItemGroup>
 </Project>
