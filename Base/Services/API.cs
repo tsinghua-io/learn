@@ -22,7 +22,6 @@ namespace LearnTsinghua.Services
 
     public class API: IAPI
     {
-        const string BASE_URL = "";
         const string VERSION = "0.0";
         const string USER_AGENT = "LearnTsinghuaCSharp/" + VERSION;
 
@@ -32,12 +31,14 @@ namespace LearnTsinghua.Services
         const string COURSE_FILES_URL = "/courses/{id}/files";
         const string COURSE_ASSIGNMENTS_URL = "/courses/{id}/assignments";
 
+        string baseURL;
         string userId;
         string password;
         string langCode;
 
-        public API(string userId, string password, string langCode = "zh-CN")
+        public API(string baseURL, string userId, string password, string langCode = "zh-CN")
         {
+            this.baseURL = baseURL;
             this.userId = userId;
             this.password = password;
             this.langCode = langCode;
@@ -45,7 +46,7 @@ namespace LearnTsinghua.Services
 
         T Execute<T>(RestRequest request) where T : new()
         {
-            var client = new RestClient(BASE_URL);
+            var client = new RestClient(baseURL);
             client.Authenticator = new HttpBasicAuthenticator(userId, password);
 
             request.AddHeader("Accept", "application/json; charset=utf-8");
