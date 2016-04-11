@@ -6,31 +6,44 @@ using LearnTsinghua.Models;
 
 namespace LearnTsinghua.Services
 {
-    public class API
+    // Representation of remote API.
+    public interface IAPI
     {
-        public const string BASE_URL = "";
-        public const string VERSION = "0.0";
-        public const string USER_AGENT = "LearnTsinghuaCSharp/" + VERSION;
+        User Profile();
 
-        public const string PROFILE_URL = "/users/me";
-        public const string ATTENDED_URL = "/users/me/attended";
-        public const string COURSE_ANNOUNCEMENTS_URL = "/courses/{id}/announcements";
-        public const string COURSE_FILES_URL = "/courses/{id}/files";
-        public const string COURSE_ASSIGNMENTS_URL = "/courses/{id}/assignments";
+        IList<Course> AllAttended();
 
-        private string userId;
-        private string password;
+        IList<Announcement> CourseAnnouncements(string courseId);
 
-        public string LangCode { get; set; }
+        IList<File> CourseFiles(string courseId);
+
+        IList<Assignment> CourseAssignments(string courseId);
+    }
+
+    public class API: IAPI
+    {
+        const string BASE_URL = "";
+        const string VERSION = "0.0";
+        const string USER_AGENT = "LearnTsinghuaCSharp/" + VERSION;
+
+        const string PROFILE_URL = "/users/me";
+        const string ATTENDED_URL = "/users/me/attended";
+        const string COURSE_ANNOUNCEMENTS_URL = "/courses/{id}/announcements";
+        const string COURSE_FILES_URL = "/courses/{id}/files";
+        const string COURSE_ASSIGNMENTS_URL = "/courses/{id}/assignments";
+
+        string userId;
+        string password;
+        string langCode;
 
         public API(string userId, string password, string langCode = "zh-CN")
         {
             this.userId = userId;
             this.password = password;
-            LangCode = langCode;
+            this.langCode = langCode;
         }
 
-        public T Execute<T>(RestRequest request) where T : new()
+        T Execute<T>(RestRequest request) where T : new()
         {
             var client = new RestClient(BASE_URL);
             client.Authenticator = new HttpBasicAuthenticator(userId, password);
