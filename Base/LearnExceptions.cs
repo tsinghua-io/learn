@@ -1,23 +1,38 @@
 ﻿using System;
 
-namespace Base
+namespace LearnTsinghua
 {
-	public class LearnBaseException: ApplicationException
-	{
-		public LearnBaseException () {}
+    public class LearnTsinghuaException: ApplicationException
+    {
+        public LearnTsinghuaException()
+        {
+        }
 
-		public LearnBaseException (string message) : base(message) {}
+        public LearnTsinghuaException(string message)
+            : base(message)
+        {
+        }
 
-		public LearnBaseException (string message, Exception inner) : base(message, inner) {}
-	}
+        public LearnTsinghuaException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 
-	public class APIWrapperException: LearnBaseException
-	{
-		public APIWrapperException () {}
+    public class APIException: LearnTsinghuaException
+    {
+        public APIException()
+        {
+        }
 
-		public APIWrapperException (string message) : base(message) {}
+        public APIException(string message)
+            : base(message)
+        {
+        }
 
-		public APIWrapperException (string message, Exception inner) : base(message, inner) {}
-	}
+        public APIException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 }
-

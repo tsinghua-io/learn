@@ -1,37 +1,57 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Couchbase.Lite;
+using RestSharp.Authenticators;
+using LearnTsinghua.Models;
 
 namespace LearnTsinghua.Services
 {
-    public interface IDatabase
+    public static class Database
     {
-        T GetDocument<T>(string documentId) where T: class;
-    }
+        const string DATABASE_NAME = "learn-tsinghua";
 
-    public class Database
-    {
-        const string DATABASE_PREFIX = "learn-tsinghua-";
-        Couchbase.Lite.Database db;
+        public static Couchbase.Lite.Database Db { get; set; }
 
-        public Database()
+        static Database()
         {
+            Db = Manager.SharedInstance.GetDatabase(DATABASE_NAME);
         }
 
-        void SetupViews()
+        public static T Get<T>(string id)
         {
-            
+            var properties = Db.GetDocument(id).Properties ?? new Dictionary<string, object>();
+            return JObject.FromObject(properties).ToObject<T>();
         }
 
-        T GetObject<T>(string docId) where T : class
+        public static T GetExisting<T>(string id) where T: class
         {
-            var doc = db.GetExistingDocument(docId);
+            var doc = Db.GetExistingDocument(id);
             if (doc == null)
                 return null;
 
-            doc.Properties.ToString
+            var properties = doc.Properties ?? new Dictionary<string, object>();
+            return JObject.FromObject(properties).ToObject<T>();
         }
 
+        public static void Set(string id, object obj, string type = null)
+        {
+            Db.GetDocument(id).Update(newRevision =>
+                {
+                    var properties = newRevision.Properties;
+                    foreach (var pair in JObject.FromObject(obj))
+                        properties[pair.Key] = pair.Value;
+                    if (type != null)
+                        properties["type"] = type;
+                    return true;
+                });
+        }
+
+        public static void Delete(string id)
+        {
+            Db.DeleteLocalDocument(id);
+        }
     }
 }
 

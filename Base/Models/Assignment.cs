@@ -1,4 +1,6 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
+using LearnTsinghua.Services;
 
 namespace LearnTsinghua.Models
 {
@@ -15,7 +17,7 @@ namespace LearnTsinghua.Models
     public class Submission
     {
         // Metadata.
-        public User Owner { get; set; }
+        public BasicUser Owner { get; set; }
 
         public string AssignmentId { get; set; }
 
@@ -31,7 +33,7 @@ namespace LearnTsinghua.Models
 
 
         // Marking metadata.
-        public User MarkedBy { get; set; }
+        public BasicUser MarkedBy { get; set; }
 
         public DateTime MarkedAt { get; set; }
 
@@ -44,7 +46,7 @@ namespace LearnTsinghua.Models
         public Attachment CommentAttachment { get; set; }
     }
 
-    public class Assignment
+    public class BasicAssignment : IResource
     {
         // Identifiers.
         public string Id { get; set; }
@@ -68,13 +70,39 @@ namespace LearnTsinghua.Models
         public Attachment Attachment { get; set; }
 
         public Submission Submission { get; set; }
+
+        public string DocId()
+        {
+            return API.AssignmentURL(CourseId, Id);
+        }
+
+        public const string RESOURCE_TYPE = "assignment";
+
+        public string ResourceType()
+        {
+            return RESOURCE_TYPE;
+        }
     }
 
-    public class LocalAssignment: Assignment
+    public class Assignment: BasicAssignment
     {
+        public Assignment(string courseId, string id)
+        {
+            CourseId = courseId;
+            Id = id;
+        }
+
         // Mark as done, not matter what.
         public bool Done { get; set; }
 
-        public DateTime UpdatedAt { get; set; }
+        public static Assignment Get(string courseId, string id)
+        {
+            return Database.GetExisting<Assignment>(new Assignment(courseId, id).DocId());
+        }
+
+        public override string ToString()
+        {
+            return JObject.FromObject(this).ToString();
+        }
     }
 }

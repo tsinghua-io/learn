@@ -54,12 +54,12 @@
       <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Main.cs" />
   </ItemGroup>
   <Import Project="..\Base\Base.projitems" Label="Shared" Condition="Exists('..\Base\Base.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
