@@ -59,6 +59,11 @@ namespace LearnTsinghua.Services
             return CourseURL(courseId) + "/assignments";
         }
 
+        public static string CourseMaterialsURL(string courseId)
+        {
+            return CourseURL(courseId) + "/materials";
+        }
+
         public static string AnnouncementURL(string courseId, string id)
         {
             return CourseAnnouncementsURL(courseId) + "/" + id;
@@ -100,32 +105,59 @@ namespace LearnTsinghua.Services
             return await ExecuteAsync<BasicMe>(request);
         }
 
-        public static async Task<IList<BasicCourse>> Attended(string semester)
+        public static async Task<List<BasicCourse>> Attended(string semester)
         {
             var request = new RestRequest(AttendedURL());
             request.AddParameter("semester", semester);
             return await ExecuteAsync<List<BasicCourse>>(request);
         }
 
-        public static async Task<IList<BasicAnnouncement>> CourseAnnouncements(string courseId)
+        public static async Task<List<BasicAnnouncement>> CourseAnnouncements(string courseId)
         {
             var request = new RestRequest(CourseAnnouncementsURL(courseId));
-            request.AddUrlSegment("id", courseId);
             return await ExecuteAsync<List<BasicAnnouncement>>(request);
         }
 
-        public static async Task<IList<BasicFile>> CourseFiles(string courseId)
+        public static async Task<List<List<BasicAnnouncement>>> CoursesAnnouncements(IList<string> courseId)
+        {
+            var request = new RestRequest(CourseAnnouncementsURL(string.Join(",", courseId)));
+            return await ExecuteAsync<List<List<BasicAnnouncement>>>(request);
+        }
+
+        public static async Task<List<BasicFile>> CourseFiles(string courseId)
         {
             var request = new RestRequest(CourseFilesURL(courseId));
-            request.AddUrlSegment("id", courseId);
             return await ExecuteAsync<List<BasicFile>>(request);
         }
 
-        public static async Task<IList<BasicAssignment>> CourseAssignments(string courseId)
+        public static async Task<List<List<BasicFile>>> CoursesFiles(IList<string> courseId)
+        {
+            var request = new RestRequest(CourseFilesURL(string.Join(",", courseId)));
+            return await ExecuteAsync<List<List<BasicFile>>>(request);
+        }
+
+        public static async Task<List<BasicAssignment>> CourseAssignments(string courseId)
         {
             var request = new RestRequest(CourseAssignmentsURL(courseId));
-            request.AddUrlSegment("id", courseId);
             return await ExecuteAsync<List<BasicAssignment>>(request);
+        }
+
+        public static async Task<List<List<BasicAssignment>>> CoursesAssignments(IList<string> courseId)
+        {
+            var request = new RestRequest(CourseAssignmentsURL(string.Join(",", courseId)));
+            return await ExecuteAsync<List<List<BasicAssignment>>>(request);
+        }
+
+        public static async Task<Materials> CourseMaterials(string courseId)
+        {
+            var request = new RestRequest(CourseMaterialsURL(courseId));
+            return await ExecuteAsync<Materials>(request);
+        }
+
+        public static async Task<List<Materials>> CoursesMaterials(IList<string> courseId)
+        {
+            var request = new RestRequest(CourseMaterialsURL(string.Join(",", courseId)));
+            return await ExecuteAsync<List<Materials>>(request);
         }
     }
 }
