@@ -7,18 +7,6 @@ namespace LearnTsinghua.Models
 {
     public class BasicFile : IResource
     {
-        public BasicFile()
-        {
-            Category = new List<string>();
-        }
-
-        public BasicFile(string courseId, string id)
-            : this()
-        {
-            Id = id;
-            CourseId = courseId;
-        }
-                
         // Identifiers.
         public string Id { get; set; }
 
@@ -33,7 +21,7 @@ namespace LearnTsinghua.Models
 
         public string Description { get; set; }
 
-        public List<string> Category { get; set; }
+        public List<string> Category { get; set; } = new List<string>();
         
         // Content.
         public string Filename { get; set; }
@@ -57,15 +45,10 @@ namespace LearnTsinghua.Models
 
     public class File : BasicFile
     {
-        public File(string courseId, string id)
-        {
-            CourseId = courseId;
-            Id = id;
-        }
-
         public static File Get(string courseId, string id)
         {
-            return Database.GetExisting<File>(new File(courseId, id).DocId());
+            var file = new BasicFile{ Id = id, CourseId = courseId };
+            return Database.GetExisting<File>(file.DocId());
         }
 
         public override string ToString()

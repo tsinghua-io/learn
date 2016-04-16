@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using CommandLine;
-using Newtonsoft.Json.Linq;
 using LearnTsinghua.Models;
 using LearnTsinghua.Services;
 
@@ -77,6 +75,11 @@ namespace LearnTsinghua.Terminal
         public string Course { get; set; }
     }
 
+    [Verb("reset", HelpText = "Reset the database.")]
+    public class ResetOptions: CommonOptions
+    {
+    }
+
 
     public class App
     {
@@ -119,7 +122,7 @@ namespace LearnTsinghua.Terminal
                 return Parser.Default.ParseArguments<
                     UpdateOptions, ProfileOptions, CourseOptions,
                     AnnouncementOptions, FileOptions, AssignmentOptions,
-                    ConfigOptions>(args).MapResult(
+                    ConfigOptions, ResetOptions>(args).MapResult(
                     (UpdateOptions opts) => Update(opts),
                     (ProfileOptions opts) => Profile(opts),
                     (CourseOptions opts) => Course(opts),
@@ -127,6 +130,7 @@ namespace LearnTsinghua.Terminal
                     (FileOptions opts) => File(opts),
                     (AssignmentOptions opts) => Assignment(opts),
                     (ConfigOptions opts) => Config(opts),
+                    (ResetOptions opts) => Reset(opts),
                     errs => 1);
             }
             catch (Exception e)
@@ -135,6 +139,68 @@ namespace LearnTsinghua.Terminal
                 Console.WriteLine(e);
                 return 1;
             }
+        }
+
+
+        public static int Update(UpdateOptions opts)
+        {
+            var userId = AppConfig.Get().UserId;
+            API.UserId = userId;
+            API.Password = ReadPassword(string.Format("Password for {0}: ", userId));
+
+            var me = Me.Get();
+//            me.Update().Wait();
+//            me.UpdateAllAttended().Wait();
+
+//            var attended = me.Attended();
+//            var tasks = new Task[attended.Count];
+//            for (int i = 0; i < attended.Count; i++)
+//            {
+//                tasks[i] = attended[i].UpdateStuff();
+//            }
+//            Task.WaitAll(tasks);
+//            Console.WriteLine(JObject.FromObject(API.CoursesAnnouncements(new List<string>{ "122205", "109148" })));
+//            me.UpdateAttended().Wait();
+            me.UpdateMaterials().Wait();
+
+            return 0;
+        }
+
+        public static int Profile(ProfileOptions opts)
+        {
+            var profile = Me.Get();
+            Console.WriteLine(profile);
+            return 0;
+        }
+
+        public static int Course(CourseOptions opts)
+        {
+            var attended = Me.Get().Attended();
+            foreach (var pair in attended)
+            {
+                Console.WriteLine(pair.Key);
+                foreach (var course in pair.Value)
+                    Console.WriteLine(course);
+            }
+            return 0;
+        }
+
+        public static int Announcement(AnnouncementOptions opts)
+        {
+//            var announcement = Ann
+            return 0;
+        }
+
+        public static int File(FileOptions opts)
+        {
+
+            return 0;
+        }
+
+        public static int Assignment(AssignmentOptions opts)
+        {
+
+            return 0;
         }
 
         public static int Config(ConfigOptions opts)
@@ -151,57 +217,9 @@ namespace LearnTsinghua.Terminal
             return 0;
         }
 
-        public static int Update(UpdateOptions opts)
+        public static int Reset(ResetOptions opts)
         {
-            var userId = AppConfig.Get().UserId;
-            API.UserId = userId;
-            API.Password = ReadPassword(string.Format("Password for {0}: ", userId));
-
-            var me = Me.Get();
-//            me.Update().Wait();
-//            me.UpdateAllAttended().Wait();
-
-            var attended = me.Attended();
-            var tasks = new Task[attended.Count];
-            for (int i = 0; i < attended.Count; i++)
-            {
-                tasks[i] = attended[i].UpdateStuff();
-            }
-            Task.WaitAll(tasks);
-
-            return 0;
-        }
-
-        public static int Profile(ProfileOptions opts)
-        {
-            var profile = Me.Get();
-            Console.WriteLine(profile);
-            return 0;
-        }
-
-        public static int Course(CourseOptions opts)
-        {
-            var courses = Me.Get().Attended();
-            foreach (var course in courses)
-                Console.WriteLine(course);
-            return 0;
-        }
-
-        public static int Announcement(AnnouncementOptions opts)
-        {
-
-            return 0;
-        }
-
-        public static int File(FileOptions opts)
-        {
-
-            return 0;
-        }
-
-        public static int Assignment(AssignmentOptions opts)
-        {
-
+            Database.Reset();
             return 0;
         }
     }

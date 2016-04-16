@@ -86,18 +86,13 @@ namespace LearnTsinghua.Models
 
     public class Assignment: BasicAssignment
     {
-        public Assignment(string courseId, string id)
-        {
-            CourseId = courseId;
-            Id = id;
-        }
-
         // Mark as done, not matter what.
         public bool Done { get; set; }
 
         public static Assignment Get(string courseId, string id)
         {
-            return Database.GetExisting<Assignment>(new Assignment(courseId, id).DocId());
+            var assignment = new BasicAssignment { Id = id, CourseId = courseId };
+            return Database.Get<Assignment>(assignment.DocId());
         }
 
         public override string ToString()

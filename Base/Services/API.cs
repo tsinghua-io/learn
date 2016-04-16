@@ -25,8 +25,13 @@ namespace LearnTsinghua.Services
         static API()
         {
 //            BaseURL = "https://api.tsinghua.io";
-            BaseURL = "http://127.0.0.1";
+            BaseURL = "http://127.0.0.1:8000";
             LangCode = "zh-CN";
+        }
+
+        public static string SemesterURL()
+        {
+            return "semester";
         }
 
         public static string ProfileURL()
@@ -97,6 +102,12 @@ namespace LearnTsinghua.Services
                 throw new APIException(string.Format("{0} got from {1}: {2}.", response.StatusCode, url, response.Content));
 
             return response.Data;
+        }
+
+        public static async Task<BasicSemester> Semester()
+        {
+            var request = new RestRequest(SemesterURL());
+            return await ExecuteAsync<BasicSemester>(request);
         }
 
         public static async Task<BasicMe> Profile()

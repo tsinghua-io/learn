@@ -38,15 +38,10 @@ namespace LearnTsinghua.Models
 
     public class Announcement : BasicAnnouncement
     {
-        public Announcement(string courseId, string id)
-        {
-            CourseId = courseId;
-            Id = id;
-        }
-
         public static Announcement Get(string courseId, string id)
         {
-            return Database.GetExisting<Announcement>(new Announcement(courseId, id).DocId());
+            var announcement = new BasicAnnouncement{ Id = id, CourseId = courseId };
+            return Database.Get<Announcement>(announcement.DocId());
         }
 
         public override string ToString()

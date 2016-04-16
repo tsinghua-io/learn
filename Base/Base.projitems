@@ -20,6 +20,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\AppConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\Database.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Materials.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Semester.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Services\" />

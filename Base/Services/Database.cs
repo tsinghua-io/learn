@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -16,7 +17,11 @@ namespace LearnTsinghua.Services
 
         static Database()
         {
+            // Suppress Couchbase logging.
+            var tmp = Console.Out;
+            Console.SetOut(TextWriter.Null);
             Db = Manager.SharedInstance.GetDatabase(DATABASE_NAME);
+            Console.SetOut(tmp);
         }
 
         public static T Get<T>(string id)
@@ -51,6 +56,11 @@ namespace LearnTsinghua.Services
         public static void Delete(string id)
         {
             Db.DeleteLocalDocument(id);
+        }
+
+        public static void Reset()
+        {
+            Db.Delete();
         }
     }
 }

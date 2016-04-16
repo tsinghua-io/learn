@@ -53,57 +53,92 @@ namespace LearnTsinghua.Models
 
     public class Me : BasicMe
     {
-        public Me()
+        public Dictionary<string, List<string>> AttendedIds { get; set; } = new Dictionary<string, List<string>>();
+
+        public void SaveAttendedIds()
         {
-            AttendedIds = new List<string>();
+            this.Set("AttendedIds", AttendedIds);
         }
 
-        public IList<string> AttendedIds { get; set; }
-
-        public IList<Course> Attended(string semester = null)
+        public Dictionary<string, List<Course>> Attended()
         {
-            var list = new List<Course>();
-            foreach (var id in AttendedIds)
+            var attended = new Dictionary<string, List<Course>>();
+            foreach (var pair in AttendedIds)
             {
-                var course = Course.Get(id);
-                if (semester == null || semester == course.Semester)
-                    list.Add(course);
+                var list = new List<Course>();
+                foreach (var id in pair.Value)
+                    list.Add(Course.Get(id));
+                attended[pair.Key] = list;
             }
-            return list;
+            return attended;
         }
 
-        public async Task UpdateAllAttended()
+        public async Task UpdateAttended()
         {
-            Console.WriteLine("Updating all attended courses.");
+            Console.WriteLine("Updating attended courses.");
 
             var attended = await API.Attended("all");
-            var deleted = new HashSet<string>(AttendedIds);
             
-            int newCount = 0, updateCount = 0;
-
             AttendedIds.Clear();
             foreach (var course in attended)
             {
-                AttendedIds.Add(course.Id);
-                if (deleted.Remove(course.Id))
-                    updateCount++;
-                else
-                    newCount++;
+                if (!AttendedIds.ContainsKey(course.SemesterId))
+                    AttendedIds[course.SemesterId] = new List<string>();
+                AttendedIds[course.SemesterId].Add(course.Id);
                 course.Save();
             }
-            this.Set("AttendedIds", AttendedIds);
-
-            foreach (var id in deleted)
-                new Course(id).Delete();
+            SaveAttendedIds();
             
-            Console.WriteLine(
-                "All attended courses updated. ({0} new, {1} update, {2} delete)",
-                newCount, updateCount, deleted.Count);
+            Console.WriteLine("Attended courses updated, {0} fetched.", attended.Count);
+        }
+
+        public async Task UpdateMaterials(string semesterId = null)
+        {
+            if (AttendedIds.Count == 0)
+                return;
+
+            var ids = new List<string>();
+            foreach (var pair in AttendedIds)
+            {
+                if (semesterId == null || pair.Key == semesterId)
+                    ids.AddRange(pair.Value);
+            }
+            Console.WriteLine("Updating course materials for {0}.", string.Join(", ", ids));
+
+            var materials = await API.CoursesMaterials(ids);
+
+            for (int i = 0; i < ids.Count; i++)
+            {
+                var course = Course.Get(ids[i]);
+
+                course.AnnouncementIds.Clear();
+                course.FileIds.Clear();
+                course.AssignmentIds.Clear();
+                foreach (var announcement in materials[i].Announcements)
+                {
+                    announcement.Save();
+                    course.AnnouncementIds.Add(announcement.Id);
+                }
+                foreach (var file in materials[i].Files)
+                {
+                    file.Save();
+                    course.FileIds.Add(file.Id);
+                }
+                foreach (var assignment in materials[i].Assignments)
+                {
+                    assignment.Save();
+                    course.AssignmentIds.Add(assignment.Id);
+                }
+
+                course.SaveIds();
+            }
+
+            Console.WriteLine("Course materials for {0} updated.", string.Join(", ", ids));
         }
 
         public static Me Get()
         {
-            return Database.Get<Me>(new Me().DocId());
+            return Database.Get<Me>(new BasicMe().DocId());
         }
 
         public override string ToString()
