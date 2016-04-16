@@ -46,12 +46,6 @@ namespace LearnTsinghua.Terminal
     [Verb("course", HelpText = "List of all courses.")]
     public class CourseOptions: CommonOptions
     {
-        [Option("semester", HelpText = "--semester=now: List of courses in this semester.")]
-        public string semester { get; set; }
-
-        [Value(0, Required = false, MetaName = "course", HelpText = "Get info of specific course.")]
-        public string Course { get; set; }
-        
     }
 
     [Verb("annc", HelpText = "Get all Announcements.")]
@@ -175,13 +169,33 @@ namespace LearnTsinghua.Terminal
 
         public static int Course(CourseOptions opts)
         {
-            var attended = Me.Get().Attended();
+            var attended = new SortedDictionary<string, List<Course>>(Me.Get().Attended());
             foreach (var pair in attended)
             {
-                Console.WriteLine(pair.Key);
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("{0} ({1}门课):", Semester.IdToString(pair.Key), pair.Value.Count);
                 foreach (var course in pair.Value)
-                    Console.WriteLine(course);
+                {
+                    Console.ResetColor();
+                    Console.Write(course.Name);
+                    if (course.Schedules.Count > 0)
+                    {
+                        var location = course.Schedules[0].Location;
+                        if (!string.IsNullOrEmpty(location))
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
+                            Console.Write(" {0}", location);
+                        }
+                            
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        foreach (var schedule in course.Schedules)
+                            Console.Write(" {0}-{1} ({2})", schedule.Day, schedule.Slot, schedule.Weeks);
+                    }
+                    Console.WriteLine();
+                }
+                Console.WriteLine();
             }
+            Console.ResetColor();
             return 0;
         }
 
