@@ -117,14 +117,14 @@ namespace LearnTsinghua.Terminal
                     UpdateOptions, ProfileOptions, CourseOptions,
                     AnnouncementOptions, FileOptions, AssignmentOptions,
                     ConfigOptions, ResetOptions>(args).MapResult(
-                    (UpdateOptions opts) => Update(opts),
-                    (ProfileOptions opts) => Profile(opts),
-                    (CourseOptions opts) => Course(opts),
-                    (AnnouncementOptions opts) => Announcement(opts),
-                    (FileOptions opts) => File(opts),
-                    (AssignmentOptions opts) => Assignment(opts),
-                    (ConfigOptions opts) => Config(opts),
-                    (ResetOptions opts) => Reset(opts),
+                    (UpdateOptions opts) => UpdateHandler(opts),
+                    (ProfileOptions opts) => ProfileHandler(opts),
+                    (CourseOptions opts) => CourseHandler(opts),
+                    (AnnouncementOptions opts) => AnnouncementHandler(opts),
+                    (FileOptions opts) => FileHandler(opts),
+                    (AssignmentOptions opts) => AssignmentHandler(opts),
+                    (ConfigOptions opts) => ConfigHandler(opts),
+                    (ResetOptions opts) => ResetHandler(opts),
                     errs => 1);
             }
             catch (Exception e)
@@ -136,7 +136,7 @@ namespace LearnTsinghua.Terminal
         }
 
 
-        public static int Update(UpdateOptions opts)
+        public static int UpdateHandler(UpdateOptions opts)
         {
             var userId = AppConfig.Get().UserId;
             API.UserId = userId;
@@ -160,24 +160,30 @@ namespace LearnTsinghua.Terminal
             return 0;
         }
 
-        public static int Profile(ProfileOptions opts)
+        public static int ProfileHandler(ProfileOptions opts)
         {
             var profile = Me.Get();
             Console.WriteLine(profile);
             return 0;
         }
 
-        public static int Course(CourseOptions opts)
+        public static int CourseHandler(CourseOptions opts)
         {
             var attended = new SortedDictionary<string, List<Course>>(Me.Get().Attended());
             foreach (var pair in attended)
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("{0} ({1}门课):", Semester.IdToString(pair.Key), pair.Value.Count);
+
+                pair.Value.Sort((lhs, rhs) => lhs.Id.CompareTo(rhs.Id));
                 foreach (var course in pair.Value)
                 {
+                    if (course.Id.Length > 21)
+                        course.Id = course.Id.PadRight(23);
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write(course.Id);
                     Console.ResetColor();
-                    Console.Write(course.Name);
+                    Console.Write(" " + course.Name);
                     if (course.Schedules.Count > 0)
                     {
                         var location = course.Schedules[0].Location;
@@ -199,25 +205,28 @@ namespace LearnTsinghua.Terminal
             return 0;
         }
 
-        public static int Announcement(AnnouncementOptions opts)
+        public static int AnnouncementHandler(AnnouncementOptions opts)
         {
-//            var announcement = Ann
+            foreach (var annc in Course.Get(opts.Course).Announcements())
+            {
+                Console.WriteLine(annc.BodyText());
+            }
             return 0;
         }
 
-        public static int File(FileOptions opts)
-        {
-
-            return 0;
-        }
-
-        public static int Assignment(AssignmentOptions opts)
+        public static int FileHandler(FileOptions opts)
         {
 
             return 0;
         }
 
-        public static int Config(ConfigOptions opts)
+        public static int AssignmentHandler(AssignmentOptions opts)
+        {
+
+            return 0;
+        }
+
+        public static int ConfigHandler(ConfigOptions opts)
         {
             var config = AppConfig.Get();
             if (opts.List)
@@ -231,7 +240,7 @@ namespace LearnTsinghua.Terminal
             return 0;
         }
 
-        public static int Reset(ResetOptions opts)
+        public static int ResetHandler(ResetOptions opts)
         {
             Database.Reset();
             return 0;
