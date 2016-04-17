@@ -187,20 +187,12 @@ namespace LearnTsinghua.Terminal
 
         public static int CourseHandler(CourseOptions opts)
         {
-            string semesterId = null;
-            if (!opts.All)
-                semesterId = Semester.Get().Id;
-            
-            var attended = new SortedDictionary<string, List<Course>>(Me.Get().Attended());
+            var attended = Me.Get().Attended(opts.All ? null : Semester.Get().Id);
             foreach (var pair in attended)
             {
-                if (semesterId != null && semesterId != pair.Key)
-                    continue;
-                
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine("{0} ({1}门课):", Semester.IdToString(pair.Key), pair.Value.Count);
+                Console.WriteLine("{0} ({1}门课)", Semester.IdToString(pair.Key), pair.Value.Count);
 
-                pair.Value.Sort((lhs, rhs) => lhs.Id.CompareTo(rhs.Id));
                 foreach (var course in pair.Value)
                 {
                     Console.ResetColor();
@@ -243,10 +235,7 @@ namespace LearnTsinghua.Terminal
                 var index = (int)opts.Index - 1;
                 var annc = Announcement.Get(course.Id, course.AnnouncementIds[index]);
 
-                if (annc.Priority >= 1)
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                else
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.ForegroundColor = annc.Priority >= 1 ? ConsoleColor.DarkRed : ConsoleColor.DarkYellow;
                 Console.WriteLine(annc.Title);
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("{0} {1}", annc.Owner?.Name, annc.CreatedAt);
@@ -266,13 +255,10 @@ namespace LearnTsinghua.Terminal
                     Console.Write("{0,6}", annc.CreatedAt.DaysSince());
                     
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write(string.Format(" {0,3}", ++index));
+                    Console.Write(" {0,3}", ++index);
                     
-                    if (annc.Priority >= 1)
-                        Console.ForegroundColor = ConsoleColor.DarkRed;
-                    else
-                        Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine(" " + annc.Title);
+                    Console.ForegroundColor = annc.Priority >= 1 ? ConsoleColor.DarkRed : ConsoleColor.DarkYellow;
+                    Console.WriteLine(" {0}", annc.Title);
                 }
                 Console.ResetColor();
             }
@@ -288,7 +274,6 @@ namespace LearnTsinghua.Terminal
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine("{0} ({1})", course.Name, Semester.IdToString(course.SemesterId));
 
-            course.FileIds.Reverse();
             if (opts.Index != null)
             {
                 if (opts.Index <= 0 || opts.Index > course.FileIds.Count)

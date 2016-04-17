@@ -67,6 +67,7 @@ namespace LearnTsinghua.Models
 
         public List<Announcement> Announcements()
         {
+            AnnouncementIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
             var list = new List<Announcement>();
             foreach (var id in AnnouncementIds)
                 list.Add(Announcement.Get(Id, id));
@@ -75,6 +76,7 @@ namespace LearnTsinghua.Models
 
         public List<File> Files()
         {
+            FileIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
             var list = new List<File>();
             foreach (var id in FileIds)
                 list.Add(File.Get(Id, id));
@@ -83,6 +85,7 @@ namespace LearnTsinghua.Models
 
         public List<Assignment> Assignments()
         {
+            AssignmentIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
             var list = new List<Assignment>();
             foreach (var id in AssignmentIds)
                 list.Add(Assignment.Get(Id, id));

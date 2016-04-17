@@ -45,14 +45,20 @@ namespace LearnTsinghua.Models
     {
         public Dictionary<string, List<string>> AttendedIds { get; set; } = new Dictionary<string, List<string>>();
 
-        public Dictionary<string, List<Course>> Attended()
+        public SortedDictionary<string, List<Course>> Attended(string semesterId = null)
         {
-            var attended = new Dictionary<string, List<Course>>();
+            var attended = new SortedDictionary<string, List<Course>>(
+                               Comparer<string>.Create((lhs, rhs) => rhs.CompareTo(lhs)));
             foreach (var pair in AttendedIds)
             {
+                if (semesterId != null && semesterId != pair.Key)
+                    continue;
+                
                 var list = new List<Course>();
                 foreach (var id in pair.Value)
                     list.Add(Course.Get(id));
+                
+                list.Sort((lhs, rhs) => lhs.Name.CompareTo(rhs.Name));
                 attended[pair.Key] = list;
             }
             return attended;
