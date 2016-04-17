@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using LearnTsinghua.Models;
 
 namespace LearnTsinghua.Terminal
 {
@@ -37,6 +38,44 @@ namespace LearnTsinghua.Terminal
                 Console.Write(keyword);
                 pos = keywordPos + keyword.Length;
             }
+            Console.ResetColor();
+        }
+
+        public static void WriteFileSize(int size)
+        {
+            var K = 1024;
+            var M = K * K;
+            var G = K * M;
+            
+            string unit;
+
+            if (size < 1000)
+            {
+                unit = "B";
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+            }
+            else if (size < 1000 * K)
+            {
+                size = (int)Math.Round((double)size / (double)K);
+                unit = "K";
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
+            }
+            else if (size < 1000 * M)
+            {
+                size = (int)Math.Round((double)size / (double)M);
+                unit = "M";
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            }
+            else
+            {
+                size = (int)Math.Round((double)size / (double)G);
+                unit = "G";
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+            }
+
+            Console.Write("{0,3}", size);
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write(unit);
             Console.ResetColor();
         }
     }

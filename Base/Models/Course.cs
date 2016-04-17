@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using LearnTsinghua.Extensions;
 using LearnTsinghua.Services;
 
 namespace LearnTsinghua.Models
@@ -104,6 +104,37 @@ namespace LearnTsinghua.Models
         {
             var course = new BasicCourse{ Id = id };
             return Database.Get<Course>(course.DocId());
+        }
+
+        public static Course GetExisting(string id)
+        {
+            var course = new BasicCourse{ Id = id };
+            return Database.GetExisting<Course>(course.DocId());
+        }
+
+        public static Course FuzzyGet(string str)
+        {
+            // Treat as id.
+            var existingCourse = GetExisting(str);
+            if (existingCourse != null)
+                return existingCourse;
+
+            // Treat as name.
+            var attended = new SortedDictionary<string, List<Course>>(
+                               Me.Get().Attended(),
+                               Comparer<string>.Create((lhs, rhs) => rhs.CompareTo(lhs))
+                           );
+
+            foreach (var courses in attended.Values)
+            {
+                foreach (var course in courses)
+                {
+                    if (str.FuzzyMatch(course.Name))
+                        return course;
+                }
+            }
+
+            return null;
         }
 
         public override string ToString()

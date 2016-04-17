@@ -55,5 +55,34 @@ namespace LearnTsinghua.Models
         {
             return JObject.FromObject(this).ToString();
         }
+
+        public static string SizeToString(int size)
+        {
+            double K = 1024;
+            double M = K * K;
+            double G = K * M;
+
+            double num;
+
+            num = size / G;
+            if (num >= 10.0)
+                return string.Format("{0:F0}G", num);
+            else if (num >= 1.0)
+                return string.Format("{0:F1}G", num);
+
+            num = size / M;
+            if (num >= 10.0)
+                return string.Format("{0:F0}M", num);
+            else if (num >= 1.0)
+                return string.Format("{0:F1}M", num);
+            
+            num = size / K;
+            if (num >= 10.0)
+                return string.Format("{0:F0}K", num);
+            else if (num >= 1.0)
+                return string.Format("{0:F1}K", num);
+
+            return size + "B";
+        }
     }
 }

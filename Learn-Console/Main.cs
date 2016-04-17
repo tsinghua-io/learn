@@ -62,7 +62,7 @@ namespace LearnTsinghua.Terminal
         [Value(0, Required = true, MetaName = "course", HelpText = "Get Announcements of specific course.")]
         public string Course { get; set; }
 
-        [Value(1, MetaName = "index", HelpText = "")]
+        [Value(1, MetaName = "index", HelpText = "Get a specific announcement.")]
         public int? Index { get; set; }
     }
 
@@ -71,6 +71,9 @@ namespace LearnTsinghua.Terminal
     {
         [Value(0, Required = true, MetaName = "course", HelpText = "Get files of specific course.")]
         public string Course { get; set; }
+
+        [Value(1, MetaName = "index", HelpText = "Get a specific file.")]
+        public int? Index { get; set; }
     }
 
     [Verb("hw", HelpText = "Get all homeworks.")]
@@ -206,12 +209,8 @@ namespace LearnTsinghua.Terminal
                 pair.Value.Sort((lhs, rhs) => lhs.Id.CompareTo(rhs.Id));
                 foreach (var course in pair.Value)
                 {
-                    if (course.Id.Length > 21)
-                        course.Id = course.Id.PadRight(23);
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write(course.Id);
                     Console.ResetColor();
-                    Console.Write(" " + course.Name);
+                    Console.Write(course.Name);
                     if (course.Schedules.Count > 0)
                     {
                         var location = course.Schedules[0].Location;
@@ -235,30 +234,35 @@ namespace LearnTsinghua.Terminal
 
         public static int AnnouncementHandler(AnnouncementOptions opts)
         {
-            var course = Course.Get(opts.Course);
+            var course = Course.FuzzyGet(opts.Course);
+            if (course == null)
+                return 1;
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("{0} ({1})", course.Name, Semester.IdToString(course.SemesterId));
+
             course.AnnouncementIds.Reverse();
-        
             if (opts.Index != null)
             {
-                if (opts.Index > 0 && opts.Index <= course.AnnouncementIds.Count)
-                {
-                    var index = (int)opts.Index - 1;
-                    var annc = Announcement.Get(course.Id, course.AnnouncementIds[index]);
+                if (opts.Index <= 0 || opts.Index > course.AnnouncementIds.Count)
+                    return 1;
+                
+                var index = (int)opts.Index - 1;
+                var annc = Announcement.Get(course.Id, course.AnnouncementIds[index]);
 
-                    if (annc.Priority >= 1)
-                        Console.ForegroundColor = ConsoleColor.DarkRed;
-                    else
-                        Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine(annc.Title);
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine("{0} {1}", annc.Owner?.Name, annc.CreatedAt);
+                if (annc.Priority >= 1)
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                else
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine(annc.Title);
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("{0} {1}", annc.Owner?.Name, annc.CreatedAt);
 
-                    var me = Me.Get();
-                    var keywords = new List<string>{ me.Name, me.Id };
-                    Console.ResetColor();
-                    Utils.WriteWithKeywords(annc.BodyText(), keywords);
-                    Console.WriteLine();
-                }
+                var me = Me.Get();
+                var keywords = new List<string>{ me.Name, me.Id };
+                Console.ResetColor();
+                Utils.WriteWithKeywords(annc.BodyText(), keywords);
+                Console.WriteLine();
             }
             else
             {
@@ -284,12 +288,56 @@ namespace LearnTsinghua.Terminal
 
         public static int FileHandler(FileOptions opts)
         {
+            var course = Course.FuzzyGet(opts.Course);
+            if (course == null)
+                return 1;
+            
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("{0} ({1})", course.Name, Semester.IdToString(course.SemesterId));
 
+            if (opts.Index != null)
+            {
+                if (opts.Index <= 0 || opts.Index > course.FileIds.Count)
+                    return 1;
+
+                var index = (int)opts.Index - 1;
+                var file = File.Get(course.Id, course.FileIds[index]);
+
+                // TODO: Download file.
+            }
+            else
+            {
+                var index = 0;
+                foreach (var file in course.Files())
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("{0,6}", file.CreatedAt.DaysSince());
+                    
+                    Console.Write(" ");
+                    Utils.WriteFileSize(file.Size);
+
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write(" {0,3}", ++index);
+
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.Write(" {0}", file.Title);
+                    
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine(" {0}", file.Description);
+                }
+                Console.ResetColor();
+            }
             return 0;
         }
 
         public static int AssignmentHandler(AssignmentOptions opts)
         {
+            var assignments = Course.Get(opts.Course).Assignments();
+
+            foreach (var assignment in assignments)
+            {
+                
+            }
 
             return 0;
         }

@@ -22,6 +22,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Materials.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Semester.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\DateTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\String.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Services\" />
