@@ -44,9 +44,16 @@ namespace LearnTsinghua.Terminal
     {
     }
 
+    [Verb("semester", HelpText = "Get current semester.")]
+    public class SemesterOptions
+    {
+    }
+
     [Verb("course", HelpText = "List of all courses.")]
     public class CourseOptions: CommonOptions
     {
+        [Option('a', "all", HelpText = "")]
+        public bool All { get; set; }
     }
 
     [Verb("annc", HelpText = "Get all Announcements.")]
@@ -115,11 +122,12 @@ namespace LearnTsinghua.Terminal
             try
             {
                 return Parser.Default.ParseArguments<
-                    UpdateOptions, ProfileOptions, CourseOptions,
+                    UpdateOptions, ProfileOptions, SemesterOptions, CourseOptions,
                     AnnouncementOptions, FileOptions, AssignmentOptions,
                     ConfigOptions, ResetOptions>(args).MapResult(
                     (UpdateOptions opts) => UpdateHandler(opts),
                     (ProfileOptions opts) => ProfileHandler(opts),
+                    (SemesterOptions opts) => SemesterHandler(opts),
                     (CourseOptions opts) => CourseHandler(opts),
                     (AnnouncementOptions opts) => AnnouncementHandler(opts),
                     (FileOptions opts) => FileHandler(opts),
@@ -143,20 +151,23 @@ namespace LearnTsinghua.Terminal
             API.UserId = userId;
             API.Password = ReadPassword(string.Format("Password for {0}: ", userId));
 
-            var me = Me.Get();
-//            me.Update().Wait();
-//            me.UpdateAllAttended().Wait();
 
-//            var attended = me.Attended();
-//            var tasks = new Task[attended.Count];
-//            for (int i = 0; i < attended.Count; i++)
-//            {
-//                tasks[i] = attended[i].UpdateStuff();
-//            }
-//            Task.WaitAll(tasks);
-//            Console.WriteLine(JObject.FromObject(API.CoursesAnnouncements(new List<string>{ "122205", "109148" })));
-//            me.UpdateAttended().Wait();
-            me.Update().Wait();
+            var me = Me.Get();
+            var semester = Semester.Get();
+            string semesterId = null;
+
+            if (opts.All)
+            {
+                me.Update().Wait();
+                me.UpdateAttended().Wait();
+                semester.Update().Wait();
+            }
+            else
+            {
+                semesterId = semester.Id;
+            }
+
+            me.UpdateMaterials(semesterId).Wait();
 
             return 0;
         }
@@ -168,11 +179,25 @@ namespace LearnTsinghua.Terminal
             return 0;
         }
 
+        public static int SemesterHandler(SemesterOptions opts)
+        {
+            var semester = Semester.Get();
+            Console.WriteLine("{0} 第{1}周", Semester.IdToString(semester.Id), semester.WeekNow());
+            return 0;
+        }
+
         public static int CourseHandler(CourseOptions opts)
         {
+            string semesterId = null;
+            if (!opts.All)
+                semesterId = Semester.Get().Id;
+            
             var attended = new SortedDictionary<string, List<Course>>(Me.Get().Attended());
             foreach (var pair in attended)
             {
+                if (semesterId != null && semesterId != pair.Key)
+                    continue;
+                
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("{0} ({1}门课):", Semester.IdToString(pair.Key), pair.Value.Count);
 
