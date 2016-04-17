@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using AngleSharp.Parser.Html;
 using LearnTsinghua.Services;
@@ -43,7 +42,7 @@ namespace LearnTsinghua.Models
         public string BodyText()
         {
             var doc = new HtmlParser().Parse(Body);
-            return Regex.Replace(doc.DocumentElement.TextContent.Trim(), @"\s+", " ");
+            return doc.DocumentElement.TextContent.Trim();
         }
 
         public override string ToString()

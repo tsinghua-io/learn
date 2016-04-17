@@ -6,8 +6,11 @@ namespace LearnTsinghua.Terminal
 {
     public static class Utils
     {
-        public static void WriteWithKeywords(string s, IList<string> keywords)
+        public static void WriteWithHighlights(string s)
         {
+            var me = Me.Get();
+            var keywords = new List<string>{ me.Name, me.Id };
+
             var pos = 0;
             while (pos < s.Length)
             {

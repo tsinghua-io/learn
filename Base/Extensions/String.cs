@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace LearnTsinghua.Extensions
 {
@@ -6,6 +7,9 @@ namespace LearnTsinghua.Extensions
     {
         public static bool FuzzyMatch(this string source, string target)
         {
+            if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(target))
+                return false;
+
             var pos = 0;
             foreach (var ch in source)
             {
@@ -15,6 +19,11 @@ namespace LearnTsinghua.Extensions
                 pos = index + 1;
             }
             return true;
+        }
+
+        public static string Oneliner(this string str)
+        {
+            return Regex.Replace(str ?? "", @"\s+", " ");
         }
     }
 }

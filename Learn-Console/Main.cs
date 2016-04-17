@@ -81,6 +81,9 @@ namespace LearnTsinghua.Terminal
     {
         [Value(0, Required = true, MetaName = "course", HelpText = "Get homeworks of specific course.")]
         public string Course { get; set; }
+
+        [Value(1, MetaName = "index", HelpText = "Get a specific homework.")]
+        public int? Index { get; set; }
     }
 
     [Verb("reset", HelpText = "Reset the database.")]
@@ -227,29 +230,27 @@ namespace LearnTsinghua.Terminal
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine("{0} ({1})", course.Name, Semester.IdToString(course.SemesterId));
 
+            var anncs = course.Announcements();
+
             if (opts.Index != null)
             {
-                if (opts.Index <= 0 || opts.Index > course.AnnouncementIds.Count)
+                if (opts.Index <= 0 || opts.Index > anncs.Count)
                     return 1;
-                
-                var index = (int)opts.Index - 1;
-                var annc = Announcement.Get(course.Id, course.AnnouncementIds[index]);
+                var annc = anncs[(int)opts.Index - 1];
 
                 Console.ForegroundColor = annc.Priority >= 1 ? ConsoleColor.DarkRed : ConsoleColor.DarkYellow;
                 Console.WriteLine(annc.Title);
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("{0} {1}", annc.Owner?.Name, annc.CreatedAt);
 
-                var me = Me.Get();
-                var keywords = new List<string>{ me.Name, me.Id };
                 Console.ResetColor();
-                Utils.WriteWithKeywords(annc.BodyText(), keywords);
+                Utils.WriteWithHighlights(annc.BodyText().Oneliner());
                 Console.WriteLine();
             }
             else
             {
                 var index = 0;
-                foreach (var annc in course.Announcements())
+                foreach (var annc in anncs)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.Write("{0,6}", annc.CreatedAt.DaysSince());
@@ -274,20 +275,20 @@ namespace LearnTsinghua.Terminal
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine("{0} ({1})", course.Name, Semester.IdToString(course.SemesterId));
 
+            var files = course.Files();
+
             if (opts.Index != null)
             {
-                if (opts.Index <= 0 || opts.Index > course.FileIds.Count)
+                if (opts.Index <= 0 || opts.Index > files.Count)
                     return 1;
-
-                var index = (int)opts.Index - 1;
-                var file = File.Get(course.Id, course.FileIds[index]);
+                var file = files[(int)opts.Index - 1];
 
                 // TODO: Download file.
             }
             else
             {
                 var index = 0;
-                foreach (var file in course.Files())
+                foreach (var file in files)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.Write("{0,6}", file.CreatedAt.DaysSince());
@@ -302,7 +303,7 @@ namespace LearnTsinghua.Terminal
                     Console.Write(" {0}", file.Title);
                     
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine(" {0}", file.Description);
+                    Console.WriteLine(" {0}", file.Description.Oneliner());
                 }
                 Console.ResetColor();
             }
@@ -311,13 +312,41 @@ namespace LearnTsinghua.Terminal
 
         public static int AssignmentHandler(AssignmentOptions opts)
         {
-            var assignments = Course.Get(opts.Course).Assignments();
-
-            foreach (var assignment in assignments)
-            {
-                
-            }
-
+//            var course = Course.FuzzyGet(opts.Course);
+//            if (course == null)
+//                return 1;
+//
+//            Console.ForegroundColor = ConsoleColor.DarkGray;
+//            Console.WriteLine("{0} ({1})", course.Name, Semester.IdToString(course.SemesterId));
+//
+//            var assignments = course.Assignments();
+//
+//            if (opts.Index != null)
+//            {
+//                if (opts.Index <= 0 || opts.Index > assignments.Count)
+//                    return 1;
+//                var assignment = assignments[(int)opts.Index - 1];
+//            }
+//            else
+//            {
+//                var index = 0;
+//                foreach (var assignment in assignments)
+//                {
+//                    Console.ForegroundColor = ConsoleColor.DarkGray;
+//                    Console.Write("{0,6}", file.CreatedAt.DaysSince());
+//
+//                    Console.Write(" ");
+//                    Utils.WriteFileSize(file.Size);
+//
+//                    Console.ForegroundColor = ConsoleColor.DarkGray;
+//                    Console.Write(" {0,3}", ++index);
+//
+//                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+//                    Console.Write(" {0}", assignment.Title);
+//
+//                }
+//                Console.ResetColor();
+//            }
             return 0;
         }
 

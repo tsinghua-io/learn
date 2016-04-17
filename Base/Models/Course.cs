@@ -67,28 +67,28 @@ namespace LearnTsinghua.Models
 
         public List<Announcement> Announcements()
         {
-            AnnouncementIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
             var list = new List<Announcement>();
             foreach (var id in AnnouncementIds)
                 list.Add(Announcement.Get(Id, id));
+            list.Sort((lhs, rhs) => rhs.Id.CompareTo(lhs.Id));
             return list;
         }
 
         public List<File> Files()
         {
-            FileIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
             var list = new List<File>();
             foreach (var id in FileIds)
                 list.Add(File.Get(Id, id));
+            list.Sort((lhs, rhs) => rhs.Id.CompareTo(lhs.Id));
             return list;
         }
 
         public List<Assignment> Assignments()
         {
-            AssignmentIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
             var list = new List<Assignment>();
             foreach (var id in AssignmentIds)
                 list.Add(Assignment.Get(Id, id));
+            list.Sort((lhs, rhs) => lhs.DueAt.CompareTo(rhs.DueAt));
             return list;
         }
 
@@ -135,10 +135,7 @@ namespace LearnTsinghua.Models
                 return existingCourse;
 
             // Treat as name, latest first.
-            var attended = new SortedDictionary<string, List<Course>>(
-                               Me.Get().Attended(),
-                               Comparer<string>.Create((lhs, rhs) => rhs.CompareTo(lhs))
-                           );
+            var attended = Me.Get().Attended();
 
             foreach (var courses in attended.Values)
             {
