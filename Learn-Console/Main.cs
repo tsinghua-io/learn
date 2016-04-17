@@ -312,41 +312,41 @@ namespace LearnTsinghua.Terminal
 
         public static int AssignmentHandler(AssignmentOptions opts)
         {
-//            var course = Course.FuzzyGet(opts.Course);
-//            if (course == null)
-//                return 1;
-//
-//            Console.ForegroundColor = ConsoleColor.DarkGray;
-//            Console.WriteLine("{0} ({1})", course.Name, Semester.IdToString(course.SemesterId));
-//
-//            var assignments = course.Assignments();
-//
-//            if (opts.Index != null)
-//            {
-//                if (opts.Index <= 0 || opts.Index > assignments.Count)
-//                    return 1;
-//                var assignment = assignments[(int)opts.Index - 1];
-//            }
-//            else
-//            {
-//                var index = 0;
-//                foreach (var assignment in assignments)
-//                {
-//                    Console.ForegroundColor = ConsoleColor.DarkGray;
-//                    Console.Write("{0,6}", file.CreatedAt.DaysSince());
-//
-//                    Console.Write(" ");
-//                    Utils.WriteFileSize(file.Size);
-//
-//                    Console.ForegroundColor = ConsoleColor.DarkGray;
-//                    Console.Write(" {0,3}", ++index);
-//
-//                    Console.ForegroundColor = ConsoleColor.DarkYellow;
-//                    Console.Write(" {0}", assignment.Title);
-//
-//                }
-//                Console.ResetColor();
-//            }
+            var course = Course.FuzzyGet(opts.Course);
+            if (course == null)
+                return 1;
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("{0} ({1})", course.Name, Semester.IdToString(course.SemesterId));
+
+            var assignments = course.Assignments();
+
+            if (opts.Index != null)
+            {
+                if (opts.Index <= 0 || opts.Index > assignments.Count)
+                    return 1;
+                var assignment = assignments[(int)opts.Index - 1];
+            }
+            else
+            {
+                var index = 0;
+                foreach (var assignment in assignments)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("{0,5}天", (assignment.DueAt - DateTime.Now).Days);
+                   
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write(" {0,3}", ++index);
+
+                    Console.ForegroundColor = assignment.Submission != null ?
+                        ConsoleColor.DarkGray :
+                        (DateTime.Now > assignment.DueAt ?
+                            ConsoleColor.DarkRed :
+                            ConsoleColor.DarkYellow);
+                    Console.WriteLine(" {0}", assignment.Title);
+                }
+                Console.ResetColor();
+            }
             return 0;
         }
 
