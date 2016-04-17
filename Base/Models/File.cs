@@ -45,16 +45,11 @@ namespace LearnTsinghua.Models
 
     public class File : BasicFile
     {
-        public static File Get(string courseId, string id)
-        {
-            var file = new BasicFile{ Id = id, CourseId = courseId };
-            return Database.GetExisting<File>(file.DocId());
-        }
-
         public override string ToString()
         {
             return JObject.FromObject(this).ToString();
         }
+
 
         public static string SizeToString(int size)
         {
@@ -83,6 +78,12 @@ namespace LearnTsinghua.Models
                 return string.Format("{0:F1}K", num);
 
             return size + "B";
+        }
+
+        public static File Get(string courseId, string id)
+        {
+            var file = new BasicFile{ Id = id, CourseId = courseId };
+            return Database.GetExisting<File>(file.DocId());
         }
     }
 }

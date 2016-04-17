@@ -156,23 +156,17 @@ namespace LearnTsinghua.Terminal
             API.UserId = userId;
             API.Password = ReadPassword(string.Format("Password for {0}: ", userId));
 
-
-            var me = Me.Get();
-            var semester = Semester.Get();
-            string semesterId = null;
-
             if (opts.All)
             {
-                me.Update().Wait();
-                me.UpdateAttended().Wait();
-                semester.Update().Wait();
+                Semester.Update().Wait();
+                Me.Update().Wait();
+                Me.UpdateAttended().Wait();
+                Me.UpdateMaterials().Wait();
             }
             else
             {
-                semesterId = semester.Id;
+                Me.UpdateMaterials(Semester.Get().Id).Wait();
             }
-
-            me.UpdateMaterials(semesterId).Wait();
 
             return 0;
         }
@@ -241,7 +235,6 @@ namespace LearnTsinghua.Terminal
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine("{0} ({1})", course.Name, Semester.IdToString(course.SemesterId));
 
-            course.AnnouncementIds.Reverse();
             if (opts.Index != null)
             {
                 if (opts.Index <= 0 || opts.Index > course.AnnouncementIds.Count)
@@ -295,6 +288,7 @@ namespace LearnTsinghua.Terminal
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine("{0} ({1})", course.Name, Semester.IdToString(course.SemesterId));
 
+            course.FileIds.Reverse();
             if (opts.Index != null)
             {
                 if (opts.Index <= 0 || opts.Index > course.FileIds.Count)

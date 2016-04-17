@@ -39,26 +39,11 @@ namespace LearnTsinghua.Models
         {
             return RESOURCE_TYPE;
         }
-
-        public async Task Update()
-        {
-            Console.WriteLine("Updating profile.");
-
-            var profile = await API.Profile();
-            profile.Save();
-
-            Console.WriteLine("Profile updated.");
-        }
     }
 
     public class Me : BasicMe
     {
         public Dictionary<string, List<string>> AttendedIds { get; set; } = new Dictionary<string, List<string>>();
-
-        public void SaveAttendedIds()
-        {
-            this.Set("AttendedIds", AttendedIds);
-        }
 
         public Dictionary<string, List<Course>> Attended()
         {
@@ -73,37 +58,50 @@ namespace LearnTsinghua.Models
             return attended;
         }
 
-        public async Task UpdateAttended()
+        public void SaveAttendedIds()
+        {
+            this.Set("AttendedIds", AttendedIds);
+        }
+
+        public override string ToString()
+        {
+            return JObject.FromObject(this).ToString();
+        }
+
+
+        public static async Task UpdateAttended()
         {
             Console.WriteLine("Updating attended courses.");
 
             var attended = await API.Attended("all");
-            
-            AttendedIds.Clear();
+            var me = Get();
+            me.AttendedIds.Clear();
+
             foreach (var course in attended)
             {
-                if (!AttendedIds.ContainsKey(course.SemesterId))
-                    AttendedIds[course.SemesterId] = new List<string>();
-                AttendedIds[course.SemesterId].Add(course.Id);
+                if (!me.AttendedIds.ContainsKey(course.SemesterId))
+                    me.AttendedIds[course.SemesterId] = new List<string>();
+                me.AttendedIds[course.SemesterId].Add(course.Id);
                 course.Save();
             }
-            SaveAttendedIds();
-            
+            me.SaveAttendedIds();
+
             Console.WriteLine("Attended courses updated, {0} fetched.", attended.Count);
         }
 
-        public async Task UpdateMaterials(string semesterId = null)
+        public static async Task UpdateMaterials(string semesterId = null)
         {
-            if (AttendedIds.Count == 0)
+            var me = Get();
+            if (me.AttendedIds.Count == 0)
                 return;
 
             var ids = new List<string>();
-            foreach (var pair in AttendedIds)
+            foreach (var pair in me.AttendedIds)
             {
                 if (semesterId == null || pair.Key == semesterId)
                     ids.AddRange(pair.Value);
             }
-            Console.WriteLine("Updating course materials for {0}.", string.Join(", ", ids));
+            Console.WriteLine("Updating course materials for {0}.", string.Join(",", ids));
 
             var materials = await API.CoursesMaterials(ids);
 
@@ -141,9 +139,14 @@ namespace LearnTsinghua.Models
             return Database.Get<Me>(new BasicMe().DocId());
         }
 
-        public override string ToString()
+        public static async Task Update()
         {
-            return JObject.FromObject(this).ToString();
+            Console.WriteLine("Updating profile.");
+
+            var profile = await API.Profile();
+            profile.Save();
+
+            Console.WriteLine("Profile updated.");
         }
     }
 }

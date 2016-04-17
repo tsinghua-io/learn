@@ -40,12 +40,6 @@ namespace LearnTsinghua.Models
 
     public class Announcement : BasicAnnouncement
     {
-        public static Announcement Get(string courseId, string id)
-        {
-            var announcement = new BasicAnnouncement{ Id = id, CourseId = courseId };
-            return Database.Get<Announcement>(announcement.DocId());
-        }
-
         public string BodyText()
         {
             var doc = new HtmlParser().Parse(Body);
@@ -55,6 +49,13 @@ namespace LearnTsinghua.Models
         public override string ToString()
         {
             return JObject.FromObject(this).ToString();
+        }
+
+
+        public static Announcement Get(string courseId, string id)
+        {
+            var announcement = new BasicAnnouncement{ Id = id, CourseId = courseId };
+            return Database.Get<Announcement>(announcement.DocId());
         }
     }
 }

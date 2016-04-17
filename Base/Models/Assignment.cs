@@ -89,15 +89,21 @@ namespace LearnTsinghua.Models
         // Mark as done, not matter what.
         public bool Done { get; set; }
 
-        public static Assignment Get(string courseId, string id)
+        public void SaveConfig()
         {
-            var assignment = new BasicAssignment { Id = id, CourseId = courseId };
-            return Database.Get<Assignment>(assignment.DocId());
+            this.Set("Done", Done);
         }
 
         public override string ToString()
         {
             return JObject.FromObject(this).ToString();
+        }
+
+
+        public static Assignment Get(string courseId, string id)
+        {
+            var assignment = new BasicAssignment { Id = id, CourseId = courseId };
+            return Database.Get<Assignment>(assignment.DocId());
         }
     }
 }

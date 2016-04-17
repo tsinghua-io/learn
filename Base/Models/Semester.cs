@@ -22,23 +22,14 @@ namespace LearnTsinghua.Models
         {
             return RESOURCE_TYPE;
         }
-
-        public async Task Update()
-        {
-            Console.WriteLine("Updating semester.");
-
-            var semester = await API.Semester();
-            semester.Save();
-
-            Console.WriteLine(string.Format("Semester updated to {0}, began at {1}.", semester.Id, semester.BeginAt));
-        }
     }
 
     public class Semester : BasicSemester
     {
-        public static Semester Get()
+        public int WeekNow()
         {
-            return Database.Get<Semester>(new Semester().DocId());
+            var diff = DateTime.Now - BeginAt;
+            return diff.Days / 7 + 1;
         }
 
         public override string ToString()
@@ -65,10 +56,19 @@ namespace LearnTsinghua.Models
             return id;  // We don't know how to handle it.
         }
 
-        public int WeekNow()
+        public static Semester Get()
         {
-            var diff = DateTime.Now - BeginAt;
-            return diff.Days / 7 + 1;
+            return Database.Get<Semester>(new Semester().DocId());
+        }
+
+        public static async Task Update()
+        {
+            Console.WriteLine("Updating semester.");
+            
+            var semester = await API.Semester();
+            semester.Save();
+            
+            Console.WriteLine(string.Format("Semester updated to {0}, began at {1}.", semester.Id, semester.BeginAt));
         }
     }
 }

@@ -22,14 +22,15 @@ namespace LearnTsinghua.Models
             return RESOURCE_TYPE;
         }
 
-        public static AppConfig Get()
-        {
-            return Database.Get<AppConfig>(new AppConfig().DocId());
-        }
-
         public override string ToString()
         {
             return JObject.FromObject(this).ToString();
+        }
+
+
+        public static AppConfig Get()
+        {
+            return Database.Get<AppConfig>(new AppConfig().DocId());
         }
     }
 }

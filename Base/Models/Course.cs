@@ -65,13 +65,6 @@ namespace LearnTsinghua.Models
 
         public List<string> AssignmentIds { get; set; } = new List<string>();
 
-        public void SaveIds()
-        {
-            this.Set("AnnouncementIds", AnnouncementIds);
-            this.Set("FileIds", FileIds);
-            this.Set("AssignmentIds", AssignmentIds);
-        }
-
         public List<Announcement> Announcements()
         {
             var list = new List<Announcement>();
@@ -96,9 +89,28 @@ namespace LearnTsinghua.Models
             return list;
         }
 
+        public void SaveIds()
+        {
+            this.Set("AnnouncementIds", AnnouncementIds);
+            this.Set("FileIds", FileIds);
+            this.Set("AssignmentIds", AssignmentIds);
+        }
+
         public bool Hide { get; set; }
 
         public bool Ignore { get; set; }
+
+        public void SaveConfig()
+        {
+            this.Set("Hide", Hide);
+            this.Set("Ignore", Ignore);
+        }
+
+        public override string ToString()
+        {
+            return JObject.FromObject(this).ToString();
+        }
+
 
         public static Course Get(string id)
         {
@@ -119,7 +131,7 @@ namespace LearnTsinghua.Models
             if (existingCourse != null)
                 return existingCourse;
 
-            // Treat as name.
+            // Treat as name, latest first.
             var attended = new SortedDictionary<string, List<Course>>(
                                Me.Get().Attended(),
                                Comparer<string>.Create((lhs, rhs) => rhs.CompareTo(lhs))
@@ -135,11 +147,6 @@ namespace LearnTsinghua.Models
             }
 
             return null;
-        }
-
-        public override string ToString()
-        {
-            return JObject.FromObject(this).ToString();
         }
     }
 }
