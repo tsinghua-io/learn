@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CommandLine;
+using LearnTsinghua.Extensions;
 using LearnTsinghua.Models;
 using LearnTsinghua.Services;
 
@@ -155,7 +156,7 @@ namespace LearnTsinghua.Terminal
 //            Task.WaitAll(tasks);
 //            Console.WriteLine(JObject.FromObject(API.CoursesAnnouncements(new List<string>{ "122205", "109148" })));
 //            me.UpdateAttended().Wait();
-            me.UpdateMaterials().Wait();
+            me.Update().Wait();
 
             return 0;
         }
@@ -207,10 +208,26 @@ namespace LearnTsinghua.Terminal
 
         public static int AnnouncementHandler(AnnouncementOptions opts)
         {
-            foreach (var annc in Course.Get(opts.Course).Announcements())
+            var announcements = Course.Get(opts.Course).Announcements();
+            announcements.Reverse();
+            var me = Me.Get();
+            var keywords = new List<string>{ me.Name, me.Id };
+
+            foreach (var annc in announcements)
             {
-                Console.WriteLine(annc.BodyText());
+                if (annc.Priority >= 1)
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                else
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.Write(annc.Title);
+
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine(" {0} {1}", annc.Owner?.Name, annc.CreatedAt.DaysSince());
+
+                Console.ResetColor();
+                Utils.WriteWithKeywords(annc.BodyText() + "\n\n", keywords);
             }
+            Console.ResetColor();
             return 0;
         }
 

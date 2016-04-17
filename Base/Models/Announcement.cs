@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
+using AngleSharp.Parser.Html;
 using LearnTsinghua.Services;
 
 namespace LearnTsinghua.Models
@@ -42,6 +44,12 @@ namespace LearnTsinghua.Models
         {
             var announcement = new BasicAnnouncement{ Id = id, CourseId = courseId };
             return Database.Get<Announcement>(announcement.DocId());
+        }
+
+        public string BodyText()
+        {
+            var doc = new HtmlParser().Parse(Body);
+            return Regex.Replace(doc.DocumentElement.TextContent.Trim(), @"\s+", " ");
         }
 
         public override string ToString()

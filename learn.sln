@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learn-iOS", "Learn-iOS\Lear
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learn-Android", "Learn-Android\Learn-Android.csproj", "{2DAA0689-E5EC-40ED-A0D4-817CFC100099}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learn-Console", "Learn-Console\Learn-Console.csproj", "{18C13316-8023-4B40-8C8A-C7E7222D803E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Terminal", "Learn-Console\Terminal.csproj", "{18C13316-8023-4B40-8C8A-C7E7222D803E}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Base", "Base\Base.shproj", "{D604A964-26ED-4541-924F-9031B8737349}"
 EndProject
