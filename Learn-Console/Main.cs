@@ -57,10 +57,13 @@ namespace LearnTsinghua.Terminal
     }
 
     [Verb("annc", HelpText = "Get all Announcements.")]
-    public class AnnouncementOptions: CommonOptions
+    public class AnnouncementOptions
     {
         [Value(0, Required = true, MetaName = "course", HelpText = "Get Announcements of specific course.")]
         public string Course { get; set; }
+
+        [Value(1, MetaName = "index", HelpText = "")]
+        public int? Index { get; set; }
     }
 
     [Verb("file", HelpText = "Get all files.")]
@@ -143,7 +146,6 @@ namespace LearnTsinghua.Terminal
                 return 1;
             }
         }
-
 
         public static int UpdateHandler(UpdateOptions opts)
         {
@@ -233,26 +235,50 @@ namespace LearnTsinghua.Terminal
 
         public static int AnnouncementHandler(AnnouncementOptions opts)
         {
-            var announcements = Course.Get(opts.Course).Announcements();
-            announcements.Reverse();
-            var me = Me.Get();
-            var keywords = new List<string>{ me.Name, me.Id };
-
-            foreach (var annc in announcements)
+            var course = Course.Get(opts.Course);
+            course.AnnouncementIds.Reverse();
+        
+            if (opts.Index != null)
             {
-                if (annc.Priority >= 1)
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                else
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.Write(annc.Title);
+                if (opts.Index > 0 && opts.Index <= course.AnnouncementIds.Count)
+                {
+                    var index = (int)opts.Index - 1;
+                    var annc = Announcement.Get(course.Id, course.AnnouncementIds[index]);
 
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine(" {0} {1}", annc.Owner?.Name, annc.CreatedAt.DaysSince());
+                    if (annc.Priority >= 1)
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                    else
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine(annc.Title);
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine("{0} {1}", annc.Owner?.Name, annc.CreatedAt);
 
-                Console.ResetColor();
-                Utils.WriteWithKeywords(annc.BodyText() + "\n\n", keywords);
+                    var me = Me.Get();
+                    var keywords = new List<string>{ me.Name, me.Id };
+                    Console.ResetColor();
+                    Utils.WriteWithKeywords(annc.BodyText(), keywords);
+                    Console.WriteLine();
+                }
             }
-            Console.ResetColor();
+            else
+            {
+                var index = 0;
+                foreach (var annc in course.Announcements())
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("{0,6}", annc.CreatedAt.DaysSince());
+                    
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write(string.Format(" {0,3}", ++index));
+                    
+                    if (annc.Priority >= 1)
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                    else
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine(" " + annc.Title);
+                }
+                Console.ResetColor();
+            }
             return 0;
         }
 

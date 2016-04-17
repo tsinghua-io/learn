@@ -28,15 +28,16 @@ namespace LearnTsinghua.Terminal
                 if (keyword == "")
                 {
                     Console.Write(s.Substring(pos));
-                    return;
+                    break;
                 }
 
+                Console.ResetColor();
                 Console.Write(s.Substring(pos, keywordPos - pos));
                 Console.BackgroundColor = ConsoleColor.DarkYellow;
                 Console.Write(keyword);
-                Console.ResetColor();
                 pos = keywordPos + keyword.Length;
             }
+            Console.ResetColor();
         }
     }
 }
