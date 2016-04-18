@@ -64,8 +64,14 @@ namespace LearnTsinghua.iOS
         {
             // in a Storyboard, Dequeue will ALWAYS return a cell, 
             var cell = tableView.DequeueReusableCell(cellIdentifier);
-            cell.TextLabel.Text = Courses[indexPath.Row].Name;
+            var course = Courses[indexPath.Row];
+            cell.TextLabel.Text = course.Name;
 
+            string location = (course.Schedules != null && course.Schedules.Count > 0) ?
+                course.Schedules[0].Location :
+                "";
+            cell.DetailTextLabel.Text = location;
+            
             return cell;
         }
 
