@@ -27,13 +27,13 @@ namespace LearnTsinghua.iOS
                 RefreshControl.EndRefreshing();
             };
             
-            refreshButton.Clicked += async (sender, e) =>
-            {
-                await Semester.Update();
-                await Me.Update();
-                await Me.UpdateAttended();
-                await Me.UpdateMaterials();
-            };
+//            refreshButton.Clicked += async (sender, e) =>
+//            {
+//                await Semester.Update();
+//                await Me.Update();
+//                await Me.UpdateAttended();
+//                await Me.UpdateMaterials();
+//            };
         }
 
         public override void ViewWillAppear(bool animated)
