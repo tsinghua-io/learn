@@ -14,8 +14,17 @@ namespace LearnTsinghua.iOS
     [Register("CourseListController")]
     partial class CourseListController
     {
+        [Outlet]
+        [GeneratedCode("iOS Designer", "1.0")]
+        UIBarButtonItem refreshButton { get; set; }
+
         void ReleaseDesignerOutlets()
         {
+            if (refreshButton != null)
+            {
+                refreshButton.Dispose();
+                refreshButton = null;
+            }
         }
     }
 }

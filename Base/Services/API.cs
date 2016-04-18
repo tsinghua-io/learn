@@ -24,8 +24,7 @@ namespace LearnTsinghua.Services
 
         static API()
         {
-//            BaseURL = "https://api.tsinghua.io";
-            BaseURL = "http://127.0.0.1:8000";
+            BaseURL = "https://api.tsinghua.io";
             LangCode = "zh-CN";
         }
 

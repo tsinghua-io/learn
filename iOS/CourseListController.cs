@@ -2,7 +2,10 @@ using Foundation;
 using System;
 using System.Collections.Generic;
 using System.CodeDom.Compiler;
+using System.Threading.Tasks;
 using UIKit;
+using LearnTsinghua.Models;
+using LearnTsinghua.Services;
 
 namespace LearnTsinghua.iOS
 {
@@ -17,6 +20,20 @@ namespace LearnTsinghua.iOS
         {
             base.ViewDidLoad();
             // Perform any additional setup after loading the view, typically from a nib.
+            RefreshControl.ValueChanged += (sender, e) =>
+            {
+                var source = TableView.Source as CourseListSource;
+                source?.Refresh();
+                RefreshControl.EndRefreshing();
+            };
+            
+            refreshButton.Clicked += async (sender, e) =>
+            {
+                await Semester.Update();
+                await Me.Update();
+                await Me.UpdateAttended();
+                await Me.UpdateMaterials();
+            };
         }
 
         public override void ViewWillAppear(bool animated)
@@ -28,14 +45,14 @@ namespace LearnTsinghua.iOS
 
     public class CourseListSource : UITableViewSource
     {
-        List<string> Courses { get; set; }
+        List<Course> Courses { get; set; }
 
         const string cellIdentifier = "CourseCell";
         // Set in the Storyboard.
        
         public CourseListSource()
         {
-            Courses = new List<string> { "aaa", "bbb" }; 
+            Refresh();
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
@@ -47,13 +64,15 @@ namespace LearnTsinghua.iOS
         {
             // in a Storyboard, Dequeue will ALWAYS return a cell, 
             var cell = tableView.DequeueReusableCell(cellIdentifier);
-            
-            cell.TextLabel.Text = Courses[indexPath.Row];
-//            if (tableItems[indexPath.Row].Done)
-//                cell.Accessory = UITableViewCellAccessory.Checkmark;
-//            else
-//                cell.Accessory = UITableViewCellAccessory.None;
+            cell.TextLabel.Text = Courses[indexPath.Row].Name;
+
             return cell;
+        }
+
+        public void Refresh()
+        {
+            var semesterId = Semester.Get().Id;
+            Courses = Me.Get().Attended(semesterId);
         }
     }
 }

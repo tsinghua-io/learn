@@ -43,27 +43,19 @@
         </scene>
         <scene sceneID="68">
             <objects>
-                <tableViewController id="69" sceneMemberID="viewController" customClass="CourseListController">
+                <tableViewController id="69" sceneMemberID="viewController" customClass="CourseListController" hasRefreshControl="1">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="70">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="73" rowHeight="44" reuseIdentifier="CourseCell" style="IBUITableViewCellStyleDefault" textLabel="200" accessoryType="disclosureIndicator">
-                                <rect key="frame" x="0.0" y="22" width="600" height="44"/>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="73" rowHeight="50" reuseIdentifier="CourseCell" accessoryType="disclosureIndicator">
+                                <rect key="frame" x="0.0" y="22" width="600" height="50"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="73" id="74">
-                                    <rect key="frame" x="0.0" y="0.0" width="562" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="562" height="49.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="200">
-                                            <rect key="frame" x="20" y="0.0" width="542" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
-                                    </subviews>
+                                    <subviews/>
                                 </tableViewCellContentView>
                             </tableViewCell>
                         </prototypes>
@@ -72,7 +64,21 @@
                             <outlet property="delegate" destination="69" id="72"/>
                         </connections>
                     </tableView>
-                    <navigationItem title="课程" id="191" key="navigationItem"/>
+                    <navigationItem id="191" key="navigationItem" title="课程">
+                        <barButtonItem id="206" translatesAutoresizingMaskIntoConstraints="NO" key="rightBarButtonItem" systemItem="refresh">
+                            <connections>
+                                <action selector="RefreshButton_Activated:" destination="69" id="208"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="refreshButton" destination="206" id="name-outlet-206"/>
+                    </connections>
+                    <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="223">
+                        <autoresizingMask key="autoresizingMask"/>
+                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="0.0"/>
+                        <attributedString key="attributedTitle"/>
+                    </refreshControl>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="75" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
