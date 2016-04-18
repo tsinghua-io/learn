@@ -6,7 +6,7 @@
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{957FCEB9-CDC5-4EDC-A992-5C16E1D9D92A}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>iOS</RootNamespace>
+    <RootNamespace>LearnTsinghua.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>iOS</AssemblyName>
   </PropertyGroup>
@@ -79,6 +79,24 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="AngleSharp">
+      <HintPath>..\packages\AngleSharp.0.9.5\lib\portable-windows8+net45+windowsphone8+wpa\AngleSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib.Portable">
+      <HintPath>..\packages\SharpZipLib.Portable.0.86.0.0003\lib\portable-net45+netcore45+wp8+win8+wpa81+MonoTouch+MonoAndroid+Xamarin.iOS10\ICSharpCode.SharpZipLib.Portable.dll</HintPath>
+    </Reference>
+    <Reference Include="Stateless">
+      <HintPath>..\packages\Stateless.2.5.21.0\lib\portable-net40+sl50+win+wp80\Stateless.dll</HintPath>
+    </Reference>
+    <Reference Include="Couchbase.Lite">
+      <HintPath>..\packages\Couchbase.Lite.1.2.0.3\lib\Xamarin.iOS10\Couchbase.Lite.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\Xamarin.iOS10\RestSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Contents.json" />
@@ -94,18 +112,17 @@
   <ItemGroup>
     <None Include="Info.plist" />
     <None Include="Entitlements.plist" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="FirstViewController.cs" />
-    <Compile Include="SecondViewController.cs" />
-    <Compile Include="FirstViewController.designer.cs">
-      <DependentUpon>FirstViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SecondViewController.designer.cs">
-      <DependentUpon>SecondViewController.cs</DependentUpon>
+    <Compile Include="CourseListController.cs" />
+    <Compile Include="CourseListController.designer.cs">
+      <DependentUpon>CourseListController.cs</DependentUpon>
     </Compile>
   </ItemGroup>
+  <Import Project="..\Base\Base.projitems" Label="Shared" Condition="Exists('..\Base\Base.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
+  <Import Project="..\packages\Couchbase.Lite.Storage.SystemSQLite.1.2\build\Xamarin.iOS10\Couchbase.Lite.Storage.SystemSQLite.targets" Condition="Exists('..\packages\Couchbase.Lite.Storage.SystemSQLite.1.2\build\Xamarin.iOS10\Couchbase.Lite.Storage.SystemSQLite.targets')" />
 </Project>
