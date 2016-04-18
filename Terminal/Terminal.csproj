@@ -3,10 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
-    <ProjectGuid>{18C13316-8023-4B40-8C8A-C7E7222D803E}</ProjectGuid>
+    <ProjectGuid>{6F57A257-7529-4C15-8C74-EC97DB23B607}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>LearnTsinghua</RootNamespace>
-    <AssemblyName>learn</AssemblyName>
+    <RootNamespace>Terminal</RootNamespace>
+    <AssemblyName>Terminal</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
@@ -29,8 +29,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="CommandLine">
-      <HintPath>..\packages\CommandLineParser.2.0.275-beta\lib\net45\CommandLine.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="AngleSharp">
+      <HintPath>..\packages\AngleSharp.0.9.5\lib\net45\AngleSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib.Portable">
       <HintPath>..\packages\SharpZipLib.Portable.0.86.0.0003\lib\portable-net45+netcore45+wp8+win8+wpa81+MonoTouch+MonoAndroid+Xamarin.iOS10\ICSharpCode.SharpZipLib.Portable.dll</HintPath>
@@ -38,11 +44,11 @@
     <Reference Include="Stateless">
       <HintPath>..\packages\Stateless.2.5.21.0\lib\portable-net40+sl50+win+wp80\Stateless.dll</HintPath>
     </Reference>
-    <Reference Include="cbforest-sharp">
-      <HintPath>..\packages\Couchbase.Lite.1.2.0.3\lib\net45\cbforest-sharp.dll</HintPath>
-    </Reference>
     <Reference Include="Couchbase.Lite">
       <HintPath>..\packages\Couchbase.Lite.1.2.0.3\lib\net45\Couchbase.Lite.dll</HintPath>
+    </Reference>
+    <Reference Include="cbforest-sharp">
+      <HintPath>..\packages\Couchbase.Lite.1.2.0.3\lib\net45\cbforest-sharp.dll</HintPath>
     </Reference>
     <Reference Include="SQLitePCL.raw">
       <HintPath>..\packages\Couchbase.Lite.1.2.0.3\lib\net45\SQLitePCL.raw.dll</HintPath>
@@ -50,14 +56,8 @@
     <Reference Include="SQLitePCL.ugly">
       <HintPath>..\packages\Couchbase.Lite.1.2.0.3\lib\net45\SQLitePCL.ugly.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp">
-      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="AngleSharp">
-      <HintPath>..\packages\AngleSharp.0.9.5\lib\net45\AngleSharp.dll</HintPath>
+    <Reference Include="CommandLine">
+      <HintPath>..\packages\CommandLineParser.2.0.275-beta\lib\net45\CommandLine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
