@@ -36,9 +36,11 @@ namespace LearnTsinghua.Models
             return RESOURCE_TYPE;
         }
 
+        private string bodyText;
+
         public string BodyText()
         {
-            return Body.RemoveTags();
+            return bodyText ?? (bodyText = Body.RemoveTags());
         }
     }
 

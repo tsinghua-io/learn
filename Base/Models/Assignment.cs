@@ -46,14 +46,18 @@ namespace LearnTsinghua.Models
 
         public Attachment CommentAttachment { get; set; }
 
+        private string bodyText;
+
         public string BodyText()
         {
-            return Body.RemoveTags();
+            return bodyText ?? (bodyText = Body.RemoveTags());
         }
+
+        private string commentText;
 
         public string CommentText()
         {
-            return Comment.RemoveTags();
+            return commentText ?? (commentText = Comment.RemoveTags());
         }
     }
 
