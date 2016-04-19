@@ -136,6 +136,10 @@
     <Compile Include="CourseFileCell.designer.cs">
       <DependentUpon>CourseFileCell.cs</DependentUpon>
     </Compile>
+    <Compile Include="CourseAnnouncementCell.cs" />
+    <Compile Include="CourseAnnouncementCell.designer.cs">
+      <DependentUpon>CourseAnnouncementCell.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <Import Project="..\Base\Base.projitems" Label="Shared" Condition="Exists('..\Base\Base.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

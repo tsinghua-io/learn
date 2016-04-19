@@ -43,8 +43,9 @@ namespace LearnTsinghua.iOS
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-            var source = TableView.Source as CourseMaterialsSource;
-            source?.Populate(Course);
+
+            (TableView.Source as CourseMaterialsSource)?.Populate(Course);
+            TableView.DeselectRow(TableView.IndexPathForSelectedRow, true);
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -102,10 +103,9 @@ namespace LearnTsinghua.iOS
             {
                 case 0:
                     {
-                        var cell = tableView.DequeueReusableCell(announcementCellIdentifier);
+                        var cell = tableView.DequeueReusableCell(announcementCellIdentifier) as CourseAnnouncementCell;
                         var annc = Announcements[indexPath.Row];
-                        cell.TextLabel.Text = annc.Title;
-                        cell.DetailTextLabel.Text = annc.BodyText().Oneliner();
+                        cell.Populate(annc);
                         return cell;
                     }
                 case 1:
