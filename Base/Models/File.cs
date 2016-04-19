@@ -41,17 +41,8 @@ namespace LearnTsinghua.Models
         {
             return RESOURCE_TYPE;
         }
-    }
 
-    public class File : BasicFile
-    {
-        public override string ToString()
-        {
-            return JObject.FromObject(this).ToString();
-        }
-
-
-        public static string SizeToString(int size)
+        public string SizeString()
         {
             double K = 1024;
             double M = K * K;
@@ -59,25 +50,27 @@ namespace LearnTsinghua.Models
 
             double num;
 
-            num = size / G;
-            if (num >= 10.0)
-                return string.Format("{0:F0}G", num);
-            else if (num >= 1.0)
-                return string.Format("{0:F1}G", num);
+            num = Size / G;
+            if (num >= 1.0)
+                return string.Format("{0:F1} GB", num);
 
-            num = size / M;
-            if (num >= 10.0)
-                return string.Format("{0:F0}M", num);
-            else if (num >= 1.0)
-                return string.Format("{0:F1}M", num);
-            
-            num = size / K;
-            if (num >= 10.0)
-                return string.Format("{0:F0}K", num);
-            else if (num >= 1.0)
-                return string.Format("{0:F1}K", num);
+            num = Size / M;
+            if (num >= 1.0)
+                return string.Format("{0:F1} MB", num);
 
-            return size + "B";
+            num = Size / K;
+            if (num >= 1.0)
+                return string.Format("{0:F1} KB", num);
+
+            return Size + " B";
+        }
+    }
+
+    public class File : BasicFile
+    {
+        public override string ToString()
+        {
+            return JObject.FromObject(this).ToString();
         }
 
         public static File Get(string courseId, string id)

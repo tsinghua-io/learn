@@ -34,6 +34,9 @@ namespace LearnTsinghua.iOS
                     TableView.ReloadData();
                 }
             };
+            
+            TableView.EstimatedRowHeight = 50;
+            TableView.RowHeight = UITableView.AutomaticDimension;
             TableView.Source = new CourseMaterialsSource();
         }
 
@@ -107,10 +110,9 @@ namespace LearnTsinghua.iOS
                     }
                 case 1:
                     {
-                        var cell = tableView.DequeueReusableCell(fileCellIdentifier);
+                        var cell = tableView.DequeueReusableCell(fileCellIdentifier) as CourseFileCell;
                         var file = Files[indexPath.Row];
-                        cell.TextLabel.Text = file.Title;
-                        cell.DetailTextLabel.Text = file.Description.Oneliner();
+                        cell.Populate(file);
                         return cell;
                     }
                 case 2:
