@@ -16,12 +16,33 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </tabBar>
                     <connections>
-                        <segue destination="aUS-XN-lcY" kind="relationship" relationship="viewControllers" id="fxu-Tc-un6"/>
+                        <segue destination="0vJ-NH-ZxN" kind="relationship" relationship="viewControllers" id="jwh-2X-b9a"/>
+                        <segue destination="aUS-XN-lcY" kind="relationship" relationship="viewControllers" id="mWK-jB-aNA"/>
+                        <segue destination="ATd-ls-Loj" kind="relationship" relationship="viewControllers" id="cJm-uE-Lap"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9cc-Oo-rb2" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="282" y="424"/>
+        </scene>
+        <!--新鲜事-->
+        <scene sceneID="0Qi-LO-PAH">
+            <objects>
+                <tableViewController id="HM4-fA-aJZ" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="WrW-Yz-ZK1">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <connections>
+                            <outlet property="dataSource" destination="HM4-fA-aJZ" id="Qwf-JL-qaf"/>
+                            <outlet property="delegate" destination="HM4-fA-aJZ" id="SPK-XP-s73"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="新鲜事" id="CF7-ya-gqj"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="8ZH-SZ-IKa" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1902" y="-346"/>
         </scene>
         <!--课程-->
         <scene sceneID="NZY-xJ-fyp">
@@ -209,6 +230,64 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bZg-BX-tlU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1082" y="423"/>
+        </scene>
+        <!--倒计时-->
+        <scene sceneID="g1R-gr-Ozo">
+            <objects>
+                <tableViewController id="AM4-Yv-V3B" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="k0S-yF-fwR">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <sections/>
+                        <connections>
+                            <outlet property="dataSource" destination="AM4-Yv-V3B" id="Xpy-7p-MId"/>
+                            <outlet property="delegate" destination="AM4-Yv-V3B" id="US6-Yv-VEC"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="倒计时" id="Bnd-lw-V80"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="5c9-HO-1fJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1902" y="1227"/>
+        </scene>
+        <!--新鲜事-->
+        <scene sceneID="svB-xU-GT4">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="0vJ-NH-ZxN" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="新鲜事" id="CDA-c4-MYp"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="ygQ-2r-bq4">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="HM4-fA-aJZ" kind="relationship" relationship="rootViewController" id="AJY-z4-d60"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="pBR-xS-kAh" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1090" y="-346"/>
+        </scene>
+        <!--倒计时-->
+        <scene sceneID="BKS-x0-bUt">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ATd-ls-Loj" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="倒计时" id="nqB-gI-OKd"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="h7Q-BA-bsF">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="AM4-Yv-V3B" kind="relationship" relationship="rootViewController" id="uZM-TD-ZUk"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="5aj-0x-j11" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1090" y="1227"/>
         </scene>
     </scenes>
 </document>
