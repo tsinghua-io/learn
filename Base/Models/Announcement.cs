@@ -1,6 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
-using AngleSharp.Parser.Html;
+using LearnTsinghua.Extensions;
 using LearnTsinghua.Services;
 
 namespace LearnTsinghua.Models
@@ -35,16 +35,15 @@ namespace LearnTsinghua.Models
         {
             return RESOURCE_TYPE;
         }
+
+        public string BodyText()
+        {
+            return Body.RemoveTags();
+        }
     }
 
     public class Announcement : BasicAnnouncement
     {
-        public string BodyText()
-        {
-            var doc = new HtmlParser().Parse(Body);
-            return doc.DocumentElement.TextContent.Trim();
-        }
-
         public override string ToString()
         {
             return JObject.FromObject(this).ToString();

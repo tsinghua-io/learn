@@ -124,6 +124,10 @@
     <Compile Include="CourseListController.designer.cs">
       <DependentUpon>CourseListController.cs</DependentUpon>
     </Compile>
+    <Compile Include="CourseMaterialsController.cs" />
+    <Compile Include="CourseMaterialsController.designer.cs">
+      <DependentUpon>CourseMaterialsController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <Import Project="..\Base\Base.projitems" Label="Shared" Condition="Exists('..\Base\Base.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

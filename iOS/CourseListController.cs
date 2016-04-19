@@ -20,13 +20,15 @@ namespace LearnTsinghua.iOS
         {
             base.ViewDidLoad();
             // Perform any additional setup after loading the view, typically from a nib.
+            TableView.Source = new CourseListSource();
             RefreshControl.ValueChanged += (sender, e) =>
             {
                 var source = TableView.Source as CourseListSource;
-                source?.Refresh();
+                source?.Populate();
+                TableView.ReloadData();
                 RefreshControl.EndRefreshing();
             };
-            
+
 //            refreshButton.Clicked += async (sender, e) =>
 //            {
 //                await Semester.Update();
@@ -39,20 +41,33 @@ namespace LearnTsinghua.iOS
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-            TableView.Source = new CourseListSource();
+            (TableView.Source as CourseListSource)?.Populate();
+            TableView.DeselectRow(TableView.IndexPathForSelectedRow, true);
+        }
+
+        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+        {
+            if (segue.Identifier == "CourseSegue")
+            {
+                var dest = segue.DestinationViewController as CourseMaterialsController;
+                if (dest != null)
+                {
+                    var source = TableView.Source as CourseListSource;
+                    var rowPath = TableView.IndexPathForSelectedRow;
+                    dest.Course = source.Courses[rowPath.Row];
+                }
+            }
         }
     }
 
     public class CourseListSource : UITableViewSource
     {
-        List<Course> Courses { get; set; }
+        public List<Course> Courses { get; set; }
 
         const string cellIdentifier = "CourseCell";
-        // Set in the Storyboard.
-       
+
         public CourseListSource()
         {
-            Refresh();
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
@@ -75,7 +90,7 @@ namespace LearnTsinghua.iOS
             return cell;
         }
 
-        public void Refresh()
+        public void Populate()
         {
             var semesterId = Semester.Get().Id;
             Courses = Me.Get().Attended(semesterId);

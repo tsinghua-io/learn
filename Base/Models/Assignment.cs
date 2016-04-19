@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
+using LearnTsinghua.Extensions;
 using LearnTsinghua.Services;
 
 namespace LearnTsinghua.Models
@@ -44,6 +45,16 @@ namespace LearnTsinghua.Models
         public string Comment { get; set; }
 
         public Attachment CommentAttachment { get; set; }
+
+        public string BodyText()
+        {
+            return Body.RemoveTags();
+        }
+
+        public string CommentText()
+        {
+            return Comment.RemoveTags();
+        }
     }
 
     public class BasicAssignment : IResource
@@ -81,6 +92,11 @@ namespace LearnTsinghua.Models
         public string ResourceType()
         {
             return RESOURCE_TYPE;
+        }
+
+        public string BodyText()
+        {
+            return Body.RemoveTags();
         }
     }
 

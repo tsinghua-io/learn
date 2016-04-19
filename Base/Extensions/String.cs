@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using AngleSharp.Parser.Html;
 
 namespace LearnTsinghua.Extensions
 {
@@ -19,6 +20,12 @@ namespace LearnTsinghua.Extensions
                 pos = index + 1;
             }
             return true;
+        }
+
+        public static string RemoveTags(this string str)
+        {
+            var doc = new HtmlParser().Parse(str);
+            return doc.DocumentElement.TextContent.Trim();
         }
 
         public static string Oneliner(this string str)
