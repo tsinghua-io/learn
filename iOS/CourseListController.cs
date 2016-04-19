@@ -19,7 +19,7 @@ namespace LearnTsinghua.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            // Perform any additional setup after loading the view, typically from a nib.
+            
             TableView.Source = new CourseListSource();
             RefreshControl.ValueChanged += (sender, e) =>
             {
@@ -41,6 +41,7 @@ namespace LearnTsinghua.iOS
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
+
             (TableView.Source as CourseListSource)?.Populate();
             TableView.DeselectRow(TableView.IndexPathForSelectedRow, true);
         }

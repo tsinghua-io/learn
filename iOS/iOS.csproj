@@ -128,8 +128,15 @@
     <Compile Include="CourseMaterialsController.designer.cs">
       <DependentUpon>CourseMaterialsController.cs</DependentUpon>
     </Compile>
+    <Compile Include="AnnouncementController.cs" />
+    <Compile Include="AnnouncementController.designer.cs">
+      <DependentUpon>AnnouncementController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <Import Project="..\Base\Base.projitems" Label="Shared" Condition="Exists('..\Base\Base.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Couchbase.Lite.Storage.SystemSQLite.1.2\build\Xamarin.iOS10\Couchbase.Lite.Storage.SystemSQLite.targets" Condition="Exists('..\packages\Couchbase.Lite.Storage.SystemSQLite.1.2\build\Xamarin.iOS10\Couchbase.Lite.Storage.SystemSQLite.targets')" />
+  <ItemGroup>
+    <Folder Include="Content\" />
+  </ItemGroup>
 </Project>

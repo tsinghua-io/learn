@@ -43,6 +43,20 @@ namespace LearnTsinghua.iOS
             var source = TableView.Source as CourseMaterialsSource;
             source?.Populate(Course);
         }
+
+        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+        {
+            if (segue.Identifier == "CourseAnnouncementSegue")
+            {
+                var dest = segue.DestinationViewController as AnnouncementController;
+                if (dest != null)
+                {
+                    var source = TableView.Source as CourseMaterialsSource;
+                    var rowPath = TableView.IndexPathForSelectedRow;
+                    dest.Announcement = source.Announcements[rowPath.Row];
+                }
+            }
+        }
     }
 
     public class CourseMaterialsSource : UITableViewSource

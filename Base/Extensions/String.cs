@@ -32,5 +32,15 @@ namespace LearnTsinghua.Extensions
         {
             return Regex.Replace(str ?? "", @"\s+", " ");
         }
+
+        public static string WrapWithCss(this string html, string cssHref)
+        {
+            return string.Format(
+                "<!DOCTYPE html>" +
+                "<html>" +
+                "<head><link rel=\"stylesheet\" type=\"text/css\" href=\"{0}\"></head>" +
+                "<body>{1}</body>" +
+                "</html>", cssHref, html);
+        }
     }
 }
