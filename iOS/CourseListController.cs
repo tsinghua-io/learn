@@ -197,7 +197,7 @@ namespace LearnTsinghua.iOS
                     courses[index.Row].Hide = false;
             }
             foreach (var course in courses)
-                course.SaveConfig();
+                course.SaveHide();
             
             var hidden = HiddenPaths();
             tableView.BeginUpdates();

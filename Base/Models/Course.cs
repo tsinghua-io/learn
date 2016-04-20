@@ -101,11 +101,15 @@ namespace LearnTsinghua.Models
 
         public bool Hide { get; set; }
 
-        public bool Ignore { get; set; }
-
-        public void SaveConfig()
+        public void SaveHide()
         {
             this.Set("Hide", Hide);
+        }
+
+        public bool Ignore { get; set; }
+
+        public void SaveIgnore()
+        {
             this.Set("Ignore", Ignore);
         }
 
