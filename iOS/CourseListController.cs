@@ -21,26 +21,45 @@ namespace LearnTsinghua.iOS
             SemesterId = Semester.Get().Id;
         }
 
-        //        public override void ViewDidLoad()
-        //        {
-        //            base.ViewDidLoad();
-        //
-        //            RefreshControl.ValueChanged += (sender, e) =>
-        //            {
-        //                var source = TableView.Source as CourseListSource;
-        //                source?.Populate();
-        //                TableView.ReloadData();
-        //                RefreshControl.EndRefreshing();
-        //            };
-        //
-        //            refreshButton.Clicked += async (sender, e) =>
-        //            {
-        //                await Semester.Update();
-        //                await Me.Update();
-        //                await Me.UpdateAttended();
-        //                await Me.UpdateMaterials();
-        //            };
-        //        }
+        public override void ViewDidLoad()
+        {
+            base.ViewDidLoad();
+
+            NavigationItem.RightBarButtonItem = EditButtonItem;
+
+            //
+            //            RefreshControl.ValueChanged += (sender, e) =>
+            //            {
+            //                var source = TableView.Source as CourseListSource;
+            //                source?.Populate();
+            //                TableView.ReloadData();
+            //                RefreshControl.EndRefreshing();
+            //            };
+            //
+            //            refreshButton.Clicked += async (sender, e) =>
+            //            {
+            //                await Semester.Update();
+            //                await Me.Update();
+            //                await Me.UpdateAttended();
+            //                await Me.UpdateMaterials();
+            //            };
+        }
+
+        public override void SetEditing(bool editing, bool animated)
+        {
+            var source = TableView.Source as CourseListSource;
+
+            if (editing)
+            {
+                base.SetEditing(editing, animated);
+                source?.BeginEditing(TableView);
+            }
+            else
+            {
+                source?.EndEditing(TableView);
+                base.SetEditing(editing, animated);
+            }
+        }
 
         public override void ViewWillAppear(bool animated)
         {
@@ -53,6 +72,11 @@ namespace LearnTsinghua.iOS
             SemesterButton.SetTitle(SemesterId.SemesterString(), UIControlState.Normal);
             TableView.Source = new CourseListSource(SemesterId);
             TableView.ReloadData();
+        }
+
+        public override bool ShouldPerformSegue(string segueIdentifier, NSObject sender)
+        {
+            return !Editing && base.ShouldPerformSegue(segueIdentifier, sender);
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -94,21 +118,46 @@ namespace LearnTsinghua.iOS
     public class CourseListSource : UITableViewSource
     {
         List<Course> courses;
+        List<Course> shownCourses;
         const string cellIdentifier = "CourseCell";
 
         public CourseListSource(string semesterId)
         {
             courses = Me.Get().Attended(semesterId);
+            PopulateShownCourses();
+        }
+
+        void PopulateShownCourses()
+        {
+            shownCourses = new List<Course>();
+            foreach (var course in courses)
+            {
+                if (!course.Hide)
+                    shownCourses.Add(course);
+            }
+        }
+
+        NSIndexPath[] HiddenPaths()
+        {
+            var paths = new List<NSIndexPath>();
+
+            for (int i = 0; i < courses.Count; i++)
+            {
+                if (courses[i].Hide)
+                    paths.Add(NSIndexPath.FromRowSection((nint)i, 0));
+            }
+
+            return paths.ToArray();
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            return courses.Count;
+            return shownCourses.Count;
         }
 
         public Course GetCourse(NSIndexPath indexPath)
         {
-            return courses[indexPath.Row];
+            return shownCourses[indexPath.Row];
         }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
@@ -123,6 +172,38 @@ namespace LearnTsinghua.iOS
             cell.DetailTextLabel.Text = location;
             
             return cell;
+        }
+
+        public void BeginEditing(UITableView tableView)
+        {
+            // Select all.
+            for (int i = 0; i < shownCourses.Count; i++)
+                tableView.SelectRow(NSIndexPath.FromRowSection((nint)i, 0), true, UITableViewScrollPosition.None);
+
+            var hidden = HiddenPaths();
+            tableView.BeginUpdates();
+            tableView.InsertRows(hidden, UITableViewRowAnimation.Top);
+            shownCourses = courses;
+            tableView.EndUpdates();
+        }
+
+        public void EndEditing(UITableView tableView)
+        {
+            foreach (var course in courses)
+                course.Hide = true;
+            if (tableView.IndexPathsForSelectedRows != null)
+            {
+                foreach (var index in tableView.IndexPathsForSelectedRows)
+                    courses[index.Row].Hide = false;
+            }
+            foreach (var course in courses)
+                course.SaveConfig();
+            
+            var hidden = HiddenPaths();
+            tableView.BeginUpdates();
+            tableView.DeleteRows(hidden, UITableViewRowAnimation.Top);
+            PopulateShownCourses();
+            tableView.EndUpdates();
         }
     }
 }
