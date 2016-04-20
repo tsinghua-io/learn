@@ -43,7 +43,7 @@ namespace LearnTsinghua.iOS
             TableView.DeselectRow(TableView.IndexPathForSelectedRow, true);
 
             NavigationItem.Title = Course.Name;
-            TableView.Source = new CourseMaterialsSource(Course);
+            TableView.Source = new CourseMaterialsSource(Course, (int)SegmentedControl.SelectedSegment);
             TableView.ReloadData();
         }
 
@@ -64,7 +64,7 @@ namespace LearnTsinghua.iOS
 
     public class CourseMaterialsSource : UITableViewSource
     {
-        public int Segment { get; set; } = 0;
+        public int Segment { get; set; }
 
         List<Announcement> announcements;
         List<File> files;
@@ -74,8 +74,9 @@ namespace LearnTsinghua.iOS
         const string fileCellIdentifier = "CourseFileCell";
         const string assignmentCellIdentifier = "CourseAssignmentCell";
 
-        public CourseMaterialsSource(Course course)
+        public CourseMaterialsSource(Course course, int segment)
         {
+            Segment = segment;
             announcements = course.Announcements();
             files = course.Files();
             assignments = course.Assignments();
