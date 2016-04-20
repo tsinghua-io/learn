@@ -148,9 +148,6 @@
                             </connections>
                         </button>
                     </navigationItem>
-                    <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="rEP-h3-H8Z">
-                        <autoresizingMask key="autoresizingMask"/>
-                    </refreshControl>
                     <connections>
                         <outlet property="SemesterButton" destination="8jI-jx-SRs" id="TPm-8L-VqM"/>
                     </connections>
