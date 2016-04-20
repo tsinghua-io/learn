@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.CodeDom.Compiler;
 using System.Threading.Tasks;
 using UIKit;
+
+using LearnTsinghua.Extensions;
 using LearnTsinghua.Models;
 using LearnTsinghua.Services;
 
@@ -11,39 +13,46 @@ namespace LearnTsinghua.iOS
 {
     public partial class CourseListController : UITableViewController
     {
+        public string SemesterId { get; set; }
+
         public CourseListController(IntPtr handle)
             : base(handle)
         {
+            SemesterId = Semester.Get().Id;
         }
 
-        public override void ViewDidLoad()
-        {
-            base.ViewDidLoad();
-            
-            TableView.Source = new CourseListSource();
-            RefreshControl.ValueChanged += (sender, e) =>
-            {
-                var source = TableView.Source as CourseListSource;
-                source?.Populate();
-                TableView.ReloadData();
-                RefreshControl.EndRefreshing();
-            };
-
-//            refreshButton.Clicked += async (sender, e) =>
-//            {
-//                await Semester.Update();
-//                await Me.Update();
-//                await Me.UpdateAttended();
-//                await Me.UpdateMaterials();
-//            };
-        }
+        //        public override void ViewDidLoad()
+        //        {
+        //            base.ViewDidLoad();
+        //
+        //            RefreshControl.ValueChanged += (sender, e) =>
+        //            {
+        //                var source = TableView.Source as CourseListSource;
+        //                source?.Populate();
+        //                TableView.ReloadData();
+        //                RefreshControl.EndRefreshing();
+        //            };
+        //
+        //            refreshButton.Clicked += async (sender, e) =>
+        //            {
+        //                await Semester.Update();
+        //                await Me.Update();
+        //                await Me.UpdateAttended();
+        //                await Me.UpdateMaterials();
+        //            };
+        //        }
 
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
+            Populate();
+        }
 
-            (TableView.Source as CourseListSource)?.Populate();
-            TableView.DeselectRow(TableView.IndexPathForSelectedRow, true);
+        public void Populate()
+        {
+            SemesterButton.SetTitle(SemesterId.SemesterString(), UIControlState.Normal);
+            TableView.Source = new CourseListSource(SemesterId);
+            TableView.ReloadData();
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -54,8 +63,29 @@ namespace LearnTsinghua.iOS
                 if (dest != null)
                 {
                     var source = TableView.Source as CourseListSource;
-                    var rowPath = TableView.IndexPathForSelectedRow;
-                    dest.Course = source.Courses[rowPath.Row];
+                    dest.Course = source.GetCourse(TableView.IndexPathForSelectedRow);
+                }
+            }
+            else if (segue.Identifier == "SelectSemesterSegue")
+            {
+                var nav = segue.DestinationViewController as UINavigationController;
+                var dest = nav?.TopViewController as SemesterController;
+                if (dest != null)
+                {
+                    dest.SelectedSemesterId = SemesterId;
+                }
+            }
+        }
+
+        partial void UnwindToCourseListController(UIKit.UIStoryboardSegue segue)
+        {
+            if (segue.Identifier == "UnwindToCourseListController")
+            {
+                var src = segue.SourceViewController as SemesterController;
+                if (src != null && src.SelectedSemesterId != SemesterId)
+                {
+                    SemesterId = src.SelectedSemesterId;
+                    Populate();
                 }
             }
         }
@@ -63,24 +93,28 @@ namespace LearnTsinghua.iOS
 
     public class CourseListSource : UITableViewSource
     {
-        public List<Course> Courses { get; set; }
-
+        List<Course> courses;
         const string cellIdentifier = "CourseCell";
 
-        public CourseListSource()
+        public CourseListSource(string semesterId)
         {
+            courses = Me.Get().Attended(semesterId);
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            return Courses.Count;
+            return courses.Count;
+        }
+
+        public Course GetCourse(NSIndexPath indexPath)
+        {
+            return courses[indexPath.Row];
         }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            // in a Storyboard, Dequeue will ALWAYS return a cell, 
             var cell = tableView.DequeueReusableCell(cellIdentifier);
-            var course = Courses[indexPath.Row];
+            var course = GetCourse(indexPath);
             cell.TextLabel.Text = course.Name;
 
             string location = (course.Schedules != null && course.Schedules.Count > 0) ?
@@ -89,12 +123,6 @@ namespace LearnTsinghua.iOS
             cell.DetailTextLabel.Text = location;
             
             return cell;
-        }
-
-        public void Populate()
-        {
-            var semesterId = Semester.Get().Id;
-            Courses = Me.Get().Attended(semesterId);
         }
     }
 }

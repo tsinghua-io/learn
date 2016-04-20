@@ -58,8 +58,8 @@ namespace LearnTsinghua.Models
         public List<Course> Attended(string semesterId)
         {
             var list = new List<Course>();
-
-            if (AttendedIds.ContainsKey(semesterId))
+                            
+            if (semesterId != null && AttendedIds.ContainsKey(semesterId))
             {
                 foreach (var id in AttendedIds[semesterId])
                     list.Add(Course.Get(id));

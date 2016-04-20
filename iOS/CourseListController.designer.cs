@@ -9,12 +9,22 @@ using System.CodeDom.Compiler;
 
 namespace LearnTsinghua.iOS
 {
-	[Register ("CourseListController")]
-	partial class CourseListController
-	{
-		
-		void ReleaseDesignerOutlets ()
-		{
-		}
-	}
+    [Register("CourseListController")]
+    partial class CourseListController
+    {
+        [Outlet]
+        UIKit.UIButton SemesterButton { get; set; }
+
+        [Action("UnwindToCourseListController:")]
+        partial void UnwindToCourseListController(UIKit.UIStoryboardSegue segue);
+
+        void ReleaseDesignerOutlets()
+        {
+            if (SemesterButton != null)
+            {
+                SemesterButton.Dispose();
+                SemesterButton = null;
+            }
+        }
+    }
 }

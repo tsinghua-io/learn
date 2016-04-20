@@ -23,10 +23,8 @@ namespace LearnTsinghua.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            NavigationItem.Title = Course?.Name;
             SegmentedControl.ValueChanged += (sender, e) =>
             {
-                Console.WriteLine("Course SegmentedControl value changed.");
                 var source = TableView.Source as CourseMaterialsSource;
                 if (source != null)
                 {
@@ -37,15 +35,16 @@ namespace LearnTsinghua.iOS
             
             TableView.EstimatedRowHeight = 50;
             TableView.RowHeight = UITableView.AutomaticDimension;
-            TableView.Source = new CourseMaterialsSource();
         }
 
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-
-            (TableView.Source as CourseMaterialsSource)?.Populate(Course);
             TableView.DeselectRow(TableView.IndexPathForSelectedRow, true);
+
+            NavigationItem.Title = Course.Name;
+            TableView.Source = new CourseMaterialsSource(Course);
+            TableView.ReloadData();
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -57,7 +56,7 @@ namespace LearnTsinghua.iOS
                 {
                     var source = TableView.Source as CourseMaterialsSource;
                     var rowPath = TableView.IndexPathForSelectedRow;
-                    dest.Announcement = source.Announcements[rowPath.Row];
+                    dest.Announcement = source.GetAnnouncement(rowPath);
                 }
             }
         }
@@ -65,21 +64,21 @@ namespace LearnTsinghua.iOS
 
     public class CourseMaterialsSource : UITableViewSource
     {
-        public List<Announcement> Announcements { get; set; }
+        public int Segment { get; set; } = 0;
 
-        public List<File> Files { get; set; }
-
-        public List<Assignment> Assignments { get; set; }
-
-        public int Segment { get; set; }
+        List<Announcement> announcements;
+        List<File> files;
+        List<Assignment> assignments;
 
         const string announcementCellIdentifier = "CourseAnnouncementCell";
         const string fileCellIdentifier = "CourseFileCell";
         const string assignmentCellIdentifier = "CourseAssignmentCell";
 
-        public CourseMaterialsSource()
+        public CourseMaterialsSource(Course course)
         {
-            Announcements = new List<Announcement>();
+            announcements = course.Announcements();
+            files = course.Files();
+            assignments = course.Assignments();
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
@@ -87,14 +86,29 @@ namespace LearnTsinghua.iOS
             switch (Segment)
             {
                 case 0:
-                    return Announcements.Count;
+                    return announcements.Count;
                 case 1:
-                    return Files.Count;
+                    return files.Count;
                 case 2:
-                    return Assignments.Count;
+                    return assignments.Count;
                 default:
                     return 0;
             }
+        }
+
+        public Announcement GetAnnouncement(NSIndexPath indexPath)
+        {
+            return announcements[indexPath.Row];
+        }
+
+        public File GetFile(NSIndexPath indexPath)
+        {
+            return files[indexPath.Row];
+        }
+
+        public Assignment GetAssignment(NSIndexPath indexPath)
+        {
+            return assignments[indexPath.Row];
         }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
@@ -104,21 +118,19 @@ namespace LearnTsinghua.iOS
                 case 0:
                     {
                         var cell = tableView.DequeueReusableCell(announcementCellIdentifier) as CourseAnnouncementCell;
-                        var annc = Announcements[indexPath.Row];
-                        cell.Populate(annc);
+                        cell.Populate(GetAnnouncement(indexPath));
                         return cell;
                     }
                 case 1:
                     {
                         var cell = tableView.DequeueReusableCell(fileCellIdentifier) as CourseFileCell;
-                        var file = Files[indexPath.Row];
-                        cell.Populate(file);
+                        cell.Populate(GetFile(indexPath));
                         return cell;
                     }
                 case 2:
                     {
                         var cell = tableView.DequeueReusableCell(assignmentCellIdentifier);
-                        var assignment = Assignments[indexPath.Row];
+                        var assignment = GetAssignment(indexPath);
                         cell.TextLabel.Text = assignment.Title;
                         cell.DetailTextLabel.Text = assignment.BodyText().Oneliner();
                         return cell;
@@ -126,13 +138,6 @@ namespace LearnTsinghua.iOS
                 default:
                     return null;
             }
-        }
-
-        public void Populate(Course course)
-        {
-            Announcements = course.Announcements();
-            Files = course.Files();
-            Assignments = course.Assignments();
         }
     }
 }

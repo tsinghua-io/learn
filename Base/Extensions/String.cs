@@ -42,5 +42,35 @@ namespace LearnTsinghua.Extensions
                 "<body>{1}</body>" +
                 "</html>", cssHref, html);
         }
+
+        public static void ParseSemesterId(this string semesterId, out string year, out string semester)
+        {
+            year = "#";
+            semester = semesterId;
+            if (semesterId.Length == 11)
+            {
+                year = semesterId.Substring(0, 9);
+                var season = semesterId.Substring(10);
+                switch (season)
+                {
+                    case "1":
+                        semester = "秋季学期";
+                        break;
+                    case "2":
+                        semester = "春季学期";
+                        break;
+                    case "3":
+                        semester = "夏季学期";
+                        break;
+                }
+            }
+        }
+
+        public static string SemesterString(this string semesterId)
+        {
+            string year, semester;
+            semesterId.ParseSemesterId(out year, out semester);
+            return year + semester;
+        }
     }
 }

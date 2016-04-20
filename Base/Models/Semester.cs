@@ -37,25 +37,6 @@ namespace LearnTsinghua.Models
             return JObject.FromObject(this).ToString();
         }
 
-        public static string IdToString(string id)
-        {
-            if (id.Length == 11)
-            {
-                var year = id.Substring(0, 9);
-                var season = id.Substring(10);
-                switch (season)
-                {
-                    case "1":
-                        return year + "秋季学期";
-                    case "2":
-                        return year + "春季学期";
-                    case "3":
-                        return year + "夏季学期";
-                }
-            }
-            return id;  // We don't know how to handle it.
-        }
-
         public static Semester Get()
         {
             return Database.Get<Semester>(new Semester().DocId());
