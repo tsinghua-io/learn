@@ -15,6 +15,10 @@ namespace LearnTsinghua.iOS
     {
         public Course Course { get; set; }
 
+        public const int AnnouncementSegmentIndex = 0;
+        public const int FileSegmentIndex = 1;
+        public const int AssignmentSegmentIndex = 2;
+
         public CourseMaterialsController(IntPtr handle)
             : base(handle)
         {
@@ -43,6 +47,10 @@ namespace LearnTsinghua.iOS
             TableView.DeselectRow(TableView.IndexPathForSelectedRow, true);
 
             NavigationItem.Title = Course.Name;
+            SegmentedControl.SetEnabled(Course.AnnouncementIds.Count > 0, AnnouncementSegmentIndex);
+            SegmentedControl.SetEnabled(Course.FileIds.Count > 0, FileSegmentIndex);
+            SegmentedControl.SetEnabled(Course.AssignmentIds.Count > 0, AssignmentSegmentIndex);
+
             TableView.Source = new CourseMaterialsSource(Course, (int)SegmentedControl.SelectedSegment);
             TableView.ReloadData();
         }
@@ -85,15 +93,38 @@ namespace LearnTsinghua.iOS
             assignments = new List<Assignment>(new Assignment[course.AssignmentIds.Count]);
         }
 
+        public override nint NumberOfSections(UITableView tableView)
+        {
+            if (RowsInSection(tableView, 0) > 0)
+            {
+                tableView.BackgroundView = null;
+                tableView.SeparatorStyle = UITableViewCellSeparatorStyle.SingleLine;
+                return 1;
+            }
+            else
+            {
+                var noDataLabel = new UILabel(tableView.Bounds);
+                noDataLabel.Text = "未使用网络学堂";
+                noDataLabel.TextColor = UIColor.LightGray;
+                noDataLabel.Font = UIFont.PreferredTitle1;
+                noDataLabel.TextAlignment = UITextAlignment.Center;
+                noDataLabel.Lines = 0;
+
+                tableView.BackgroundView = noDataLabel;
+                tableView.SeparatorStyle = UITableViewCellSeparatorStyle.None;
+                return 0;
+            }
+        }
+
         public override nint RowsInSection(UITableView tableview, nint section)
         {
             switch (Segment)
             {
-                case 0:
+                case CourseMaterialsController.AnnouncementSegmentIndex:
                     return announcements.Count;
-                case 1:
+                case CourseMaterialsController.FileSegmentIndex:
                     return files.Count;
-                case 2:
+                case CourseMaterialsController.AssignmentSegmentIndex:
                     return assignments.Count;
                 default:
                     return 0;
@@ -119,19 +150,19 @@ namespace LearnTsinghua.iOS
         {
             switch (Segment)
             {
-                case 0:
+                case CourseMaterialsController.AnnouncementSegmentIndex:
                     {
                         var cell = tableView.DequeueReusableCell(announcementCellIdentifier) as CourseAnnouncementCell;
                         cell.Populate(GetAnnouncement(indexPath));
                         return cell;
                     }
-                case 1:
+                case CourseMaterialsController.FileSegmentIndex:
                     {
                         var cell = tableView.DequeueReusableCell(fileCellIdentifier) as CourseFileCell;
                         cell.Populate(GetFile(indexPath));
                         return cell;
                     }
-                case 2:
+                case CourseMaterialsController.AssignmentSegmentIndex:
                     {
                         var cell = tableView.DequeueReusableCell(assignmentCellIdentifier);
                         var assignment = GetAssignment(indexPath);

@@ -162,14 +162,8 @@ namespace LearnTsinghua.iOS
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var cell = tableView.DequeueReusableCell(cellIdentifier);
-            var course = GetCourse(indexPath);
-            cell.TextLabel.Text = course.Name;
-
-            string location = (course.Schedules != null && course.Schedules.Count > 0) ?
-                course.Schedules[0].Location :
-                "";
-            cell.DetailTextLabel.Text = location;
+            var cell = tableView.DequeueReusableCell(cellIdentifier) as CourseCell;
+            cell?.Populate(GetCourse(indexPath));
             
             return cell;
         }

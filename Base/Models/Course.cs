@@ -55,6 +55,27 @@ namespace LearnTsinghua.Models
         {
             return RESOURCE_TYPE;
         }
+
+        public string Location()
+        {
+            return Schedules != null && Schedules.Count > 0 ? Schedules[0].Location : "";
+        }
+
+        public string TimeString()
+        {
+            if (Schedules == null)
+                return "";
+
+            var strs = new List<string>();
+            foreach (var schedule in Schedules)
+            {
+                if (schedule.Day == 0 && schedule.Slot == 0)
+                    strs.Add(schedule.Weeks);
+                else
+                    strs.Add(string.Format("{0}{1}-{2}", schedule.Weeks, schedule.Day, schedule.Slot));
+            }
+            return string.Join(" ", strs);
+        }
     }
 
     public class Course : BasicCourse
@@ -151,6 +172,11 @@ namespace LearnTsinghua.Models
             }
 
             return null;
+        }
+
+        public bool NoMaterials()
+        {
+            return AnnouncementIds.Count == 0 && FileIds.Count == 0 && AssignmentIds.Count == 0;
         }
     }
 }
