@@ -47,10 +47,19 @@ namespace LearnTsinghua.iOS
             TableView.DeselectRow(TableView.IndexPathForSelectedRow, true);
 
             NavigationItem.Title = Course.Name;
+
             SegmentedControl.SetEnabled(Course.AnnouncementIds.Count > 0, AnnouncementSegmentIndex);
             SegmentedControl.SetEnabled(Course.FileIds.Count > 0, FileSegmentIndex);
             SegmentedControl.SetEnabled(Course.AssignmentIds.Count > 0, AssignmentSegmentIndex);
-
+            for (int i = 0; i < SegmentedControl.NumberOfSegments; i++)
+            {
+                if (SegmentedControl.IsEnabled((nint)i))
+                {
+                    SegmentedControl.SelectedSegment = i;
+                    break;
+                }
+            }
+                
             TableView.Source = new CourseMaterialsSource(Course, (int)SegmentedControl.SelectedSegment);
             TableView.ReloadData();
         }
