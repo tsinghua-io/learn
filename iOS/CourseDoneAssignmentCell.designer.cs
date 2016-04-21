@@ -9,14 +9,11 @@ using System.CodeDom.Compiler;
 
 namespace LearnTsinghua.iOS
 {
-	[Register ("CourseAssignmentCell")]
-	partial class CourseAssignmentCell
+	[Register ("CourseDoneAssignmentCell")]
+	partial class CourseDoneAssignmentCell
 	{
 		[Outlet]
-		UIKit.UILabel CountdownLabel { get; set; }
-
-		[Outlet]
-		UIKit.UILabel DetailLabel { get; set; }
+		UIKit.UILabel MarkLabel { get; set; }
 
 		[Outlet]
 		UIKit.UILabel TitleLabel { get; set; }
@@ -28,14 +25,9 @@ namespace LearnTsinghua.iOS
 				TitleLabel = null;
 			}
 
-			if (CountdownLabel != null) {
-				CountdownLabel.Dispose ();
-				CountdownLabel = null;
-			}
-
-			if (DetailLabel != null) {
-				DetailLabel.Dispose ();
-				DetailLabel = null;
+			if (MarkLabel != null) {
+				MarkLabel.Dispose ();
+				MarkLabel = null;
 			}
 		}
 	}

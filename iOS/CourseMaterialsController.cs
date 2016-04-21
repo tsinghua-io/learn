@@ -77,34 +77,32 @@ namespace LearnTsinghua.iOS
         Course course;
         List<Announcement> announcements;
         List<File> files;
-        List<Assignment> assignments;
+        List<Assignment> undoneAssignments;
+        List<Assignment> doneAssignments;
 
         const string announcementCellIdentifier = "CourseAnnouncementCell";
         const string fileCellIdentifier = "CourseFileCell";
         const string assignmentCellIdentifier = "CourseAssignmentCell";
+        const string doneAssignmentCellIdentifier = "CourseDoneAssignmentCell";
 
         public CourseMaterialsSource(Course course, int segment)
         {
+            Segment = segment;
+            // Sort ids.
             course.AnnouncementIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
             course.FileIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
-            course.AssignmentIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
             this.course = course;
-            Segment = segment;
 
             announcements = new List<Announcement>(new Announcement[course.AnnouncementIds.Count]);
             files = new List<File>(new File[course.FileIds.Count]);
-            assignments = new List<Assignment>(new Assignment[course.AssignmentIds.Count]);
+
+            // We have to read all the assignments here to figure out dones & undones.
+            course.Assignments(out undoneAssignments, out doneAssignments);
         }
 
         public override nint NumberOfSections(UITableView tableView)
         {
-            if (RowsInSection(tableView, 0) > 0)
-            {
-                tableView.BackgroundView = null;
-                tableView.SeparatorStyle = UITableViewCellSeparatorStyle.SingleLine;
-                return 1;
-            }
-            else
+            if (course.NoMaterials())
             {
                 var noDataLabel = new UILabel(tableView.Bounds);
                 noDataLabel.Text = "未使用网络学堂";
@@ -115,7 +113,15 @@ namespace LearnTsinghua.iOS
 
                 tableView.BackgroundView = noDataLabel;
                 tableView.SeparatorStyle = UITableViewCellSeparatorStyle.None;
+
                 return 0;
+            }
+            else
+            {
+                tableView.BackgroundView = null;
+                tableView.SeparatorStyle = UITableViewCellSeparatorStyle.SingleLine;
+
+                return Segment == CourseMaterialsController.AssignmentSegmentIndex ? 2 : 1;
             }
         }
 
@@ -128,9 +134,24 @@ namespace LearnTsinghua.iOS
                 case CourseMaterialsController.FileSegmentIndex:
                     return files.Count;
                 case CourseMaterialsController.AssignmentSegmentIndex:
-                    return assignments.Count;
+                    return section == 0 ? undoneAssignments.Count : doneAssignments.Count;
                 default:
                     return 0;
+            }
+        }
+
+        public override string TitleForHeader(UITableView tableView, nint section)
+        {
+            switch (Segment)
+            {
+                case CourseMaterialsController.AnnouncementSegmentIndex:
+                    return null;
+                case CourseMaterialsController.FileSegmentIndex:
+                    return null;
+                case CourseMaterialsController.AssignmentSegmentIndex:
+                    return section == 0 ? "未完成" : "已完成";
+                default:
+                    return null;
             }
         }
 
@@ -146,6 +167,7 @@ namespace LearnTsinghua.iOS
 
         public Assignment GetAssignment(NSIndexPath indexPath)
         {
+            var assignments = indexPath.Section == 0 ? undoneAssignments : doneAssignments;
             return assignments[indexPath.Row] ?? (assignments[indexPath.Row] = Assignment.Get(course.Id, course.AssignmentIds[indexPath.Row]));
         }
 
@@ -167,11 +189,19 @@ namespace LearnTsinghua.iOS
                     }
                 case CourseMaterialsController.AssignmentSegmentIndex:
                     {
-                        var cell = tableView.DequeueReusableCell(assignmentCellIdentifier);
                         var assignment = GetAssignment(indexPath);
-                        cell.TextLabel.Text = assignment.Title;
-                        cell.DetailTextLabel.Text = assignment.BodyText().Oneliner();
-                        return cell;
+                        if (!assignment.Done())
+                        {
+                            var cell = tableView.DequeueReusableCell(assignmentCellIdentifier) as CourseAssignmentCell;
+                            cell.Populate(assignment);
+                            return cell;
+                        }
+                        else
+                        {
+                            var cell = tableView.DequeueReusableCell(doneAssignmentCellIdentifier) as CourseDoneAssignmentCell;
+                            cell.Populate(assignment);
+                            return cell;
+                        }
                     }
                 default:
                     return null;

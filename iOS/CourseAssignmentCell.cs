@@ -5,12 +5,23 @@ using System;
 using Foundation;
 using UIKit;
 
+using LearnTsinghua.Extensions;
+using LearnTsinghua.Models;
+
 namespace LearnTsinghua.iOS
 {
-	public partial class CourseAssignmentCell : UITableViewCell
-	{
-		public CourseAssignmentCell (IntPtr handle) : base (handle)
-		{
-		}
-	}
+    public partial class CourseAssignmentCell : UITableViewCell
+    {
+        public CourseAssignmentCell(IntPtr handle)
+            : base(handle)
+        {
+        }
+
+        public void Populate(Assignment assignment)
+        {
+            TitleLabel.Text = assignment.Title;
+            CountdownLabel.Text = assignment.DueAt.DaysSince();
+            DetailLabel.Text = assignment.BodyText().Oneliner();
+        }
+    }
 }

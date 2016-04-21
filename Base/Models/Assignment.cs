@@ -106,12 +106,16 @@ namespace LearnTsinghua.Models
 
     public class Assignment: BasicAssignment
     {
-        // Mark as done, not matter what.
-        public bool Done { get; set; }
+        public bool MarkAsDone { get; set; }
 
         public void SaveConfig()
         {
-            this.Set("Done", Done);
+            this.Set("MarkAsDone", MarkAsDone);
+        }
+
+        public bool Done()
+        {
+            return Submission != null || MarkAsDone;
         }
 
         public override string ToString()

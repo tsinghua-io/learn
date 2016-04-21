@@ -104,13 +104,17 @@ namespace LearnTsinghua.Models
             return list;
         }
 
-        public List<Assignment> Assignments()
+        public void Assignments(out List<Assignment> undone, out List<Assignment> done)
         {
-            var list = new List<Assignment>();
+            undone = new List<Assignment>();
+            done = new List<Assignment>();
             foreach (var id in AssignmentIds)
-                list.Add(Assignment.Get(Id, id));
-            list.Sort((lhs, rhs) => lhs.DueAt.CompareTo(rhs.DueAt));
-            return list;
+            {
+                var assignment = Assignment.Get(Id, id);
+                (assignment.Submission == null ? undone : done).Add(assignment);
+            }
+            undone.Sort((lhs, rhs) => lhs.DueAt.CompareTo(rhs.DueAt));
+            done.Sort((lhs, rhs) => rhs.Id.CompareTo(lhs.Id));
         }
 
         public void SaveIds()
