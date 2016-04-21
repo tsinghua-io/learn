@@ -66,6 +66,7 @@ namespace LearnTsinghua.iOS
     {
         public int Segment { get; set; }
 
+        Course course;
         List<Announcement> announcements;
         List<File> files;
         List<Assignment> assignments;
@@ -76,10 +77,12 @@ namespace LearnTsinghua.iOS
 
         public CourseMaterialsSource(Course course, int segment)
         {
+            this.course = course;
             Segment = segment;
-            announcements = course.Announcements();
-            files = course.Files();
-            assignments = course.Assignments();
+
+            announcements = new List<Announcement>(new Announcement[course.AnnouncementIds.Count]);
+            files = new List<File>(new File[course.FileIds.Count]);
+            assignments = new List<Assignment>(new Assignment[course.AssignmentIds.Count]);
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
@@ -99,21 +102,23 @@ namespace LearnTsinghua.iOS
 
         public Announcement GetAnnouncement(NSIndexPath indexPath)
         {
-            return announcements[indexPath.Row];
+            
+            return announcements[indexPath.Row] ?? (announcements[indexPath.Row] = Announcement.Get(course.Id, course.AnnouncementIds[indexPath.Row]));
         }
 
         public File GetFile(NSIndexPath indexPath)
         {
-            return files[indexPath.Row];
+            return files[indexPath.Row] ?? (files[indexPath.Row] = File.Get(course.Id, course.FileIds[indexPath.Row]));
         }
 
         public Assignment GetAssignment(NSIndexPath indexPath)
         {
-            return assignments[indexPath.Row];
+            return assignments[indexPath.Row] ?? (assignments[indexPath.Row] = Assignment.Get(course.Id, course.AssignmentIds[indexPath.Row]));
         }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
+            Console.WriteLine("Getting {0}.", indexPath.Row);
             switch (Segment)
             {
                 case 0:
