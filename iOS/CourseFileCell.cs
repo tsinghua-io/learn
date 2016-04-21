@@ -21,9 +21,9 @@ namespace LearnTsinghua.iOS
         {
             if (file != null)
             {
-                Title.Text = file.Title;
-                Description.Text = file.Description.Oneliner();
-                FileSize.Text = file.SizeString();
+                TitleLabel.Text = file.Title;
+                DescriptionLabel.Text = file.Description.Oneliner();
+                SubtitleLabel.Text = string.Format("{0}，{1}", file.CreatedAt.DaysSince(), file.SizeString());
             }
         }
     }

@@ -13,37 +13,37 @@ namespace LearnTsinghua.iOS
 	partial class CourseFileCell
 	{
 		[Outlet]
-		UIKit.UILabel Description { get; set; }
+		UIKit.UILabel DescriptionLabel { get; set; }
 
 		[Outlet]
-		UIKit.UILabel FileSize { get; set; }
+		UIKit.UIImageView IconImage { get; set; }
 
 		[Outlet]
-		UIKit.UIView Icon { get; set; }
+		UIKit.UILabel SubtitleLabel { get; set; }
 
 		[Outlet]
-		UIKit.UILabel Title { get; set; }
+		UIKit.UILabel TitleLabel { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (Icon != null) {
-				Icon.Dispose ();
-				Icon = null;
+			if (DescriptionLabel != null) {
+				DescriptionLabel.Dispose ();
+				DescriptionLabel = null;
 			}
 
-			if (Title != null) {
-				Title.Dispose ();
-				Title = null;
+			if (SubtitleLabel != null) {
+				SubtitleLabel.Dispose ();
+				SubtitleLabel = null;
 			}
 
-			if (FileSize != null) {
-				FileSize.Dispose ();
-				FileSize = null;
+			if (TitleLabel != null) {
+				TitleLabel.Dispose ();
+				TitleLabel = null;
 			}
 
-			if (Description != null) {
-				Description.Dispose ();
-				Description = null;
+			if (IconImage != null) {
+				IconImage.Dispose ();
+				IconImage = null;
 			}
 		}
 	}

@@ -85,6 +85,9 @@ namespace LearnTsinghua.iOS
 
         public CourseMaterialsSource(Course course, int segment)
         {
+            course.AnnouncementIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
+            course.FileIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
+            course.AssignmentIds.Sort((lhs, rhs) => rhs.CompareTo(lhs));
             this.course = course;
             Segment = segment;
 
