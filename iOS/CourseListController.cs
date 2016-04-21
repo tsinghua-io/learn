@@ -69,7 +69,7 @@ namespace LearnTsinghua.iOS
 
         public void Populate()
         {
-            SemesterButton.SetTitle(SemesterId.SemesterString(), UIControlState.Normal);
+            SemesterButton.SetTitle(SemesterId.SemesterString() + " ▾", UIControlState.Normal);
             TableView.Source = new CourseListSource(SemesterId);
             TableView.ReloadData();
         }

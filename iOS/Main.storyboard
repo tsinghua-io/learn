@@ -138,10 +138,10 @@
                     <navigationItem key="navigationItem" id="UQU-HF-FGS">
                         <nil key="title"/>
                         <button key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="8jI-jx-SRs">
-                            <rect key="frame" x="180" y="7" width="240" height="30"/>
+                            <rect key="frame" x="180" y="6" width="240" height="32"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                            <state key="normal" title="2015-2016春季学期"/>
+                            <state key="normal" title="2015-2016春季学期 ▾"/>
                             <connections>
                                 <segue destination="mBy-gc-VkY" kind="popoverPresentation" identifier="SelectSemesterSegue" popoverAnchorView="8jI-jx-SRs" id="Bp6-ga-MXx">
                                     <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>

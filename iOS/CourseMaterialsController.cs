@@ -102,7 +102,6 @@ namespace LearnTsinghua.iOS
 
         public Announcement GetAnnouncement(NSIndexPath indexPath)
         {
-            
             return announcements[indexPath.Row] ?? (announcements[indexPath.Row] = Announcement.Get(course.Id, course.AnnouncementIds[indexPath.Row]));
         }
 
@@ -118,7 +117,6 @@ namespace LearnTsinghua.iOS
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            Console.WriteLine("Getting {0}.", indexPath.Row);
             switch (Segment)
             {
                 case 0:
