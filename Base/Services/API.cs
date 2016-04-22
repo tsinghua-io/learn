@@ -83,7 +83,12 @@ namespace LearnTsinghua.Services
             return CourseAssignmentsURL(courseId) + "/" + id;
         }
 
-        public static async Task<T> ExecuteAsync<T>(IRestRequest request) where T : new()
+        public static string AuthorizationsURL()
+        {
+            return "authorizations";
+        }
+
+        public static async Task<T> ExecuteAsync<T>(IRestRequest request)
         {
             var client = new RestClient(BaseURL);
             client.Authenticator = new HttpBasicAuthenticator(UserId, Password);
@@ -168,6 +173,13 @@ namespace LearnTsinghua.Services
         {
             var request = new RestRequest(CourseMaterialsURL(string.Join(",", courseId)));
             return await ExecuteAsync<List<Materials>>(request);
+        }
+
+        public static async Task<Dictionary<string, string>> Authorizations(string url)
+        {
+            var request = new RestRequest(AuthorizationsURL());
+            request.AddParameter("url", url);
+            return await ExecuteAsync<Dictionary<string, string>>(request);
         }
     }
 }

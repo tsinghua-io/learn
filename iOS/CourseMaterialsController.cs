@@ -78,6 +78,16 @@ namespace LearnTsinghua.iOS
                     dest.Announcement = source.GetAnnouncement(rowPath);
                 }
             }
+            else if (segue.Identifier == "CourseFileSegue")
+            {
+                var dest = segue.DestinationViewController as FileController;
+                if (dest != null)
+                {
+                    var source = TableView.Source as CourseMaterialsSource;
+                    var rowPath = TableView.IndexPathForSelectedRow;
+                    dest.File = source.GetFile(rowPath);
+                }
+            }
         }
     }
 

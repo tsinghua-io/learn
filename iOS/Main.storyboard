@@ -325,6 +325,7 @@
                                             <outlet property="IconImage" destination="dc6-aj-geu" id="4lb-rX-jeX"/>
                                             <outlet property="SubtitleLabel" destination="3DG-6r-niX" id="JyY-Ke-SPJ"/>
                                             <outlet property="TitleLabel" destination="qPL-Wh-XBE" id="8Fg-ed-ayR"/>
+                                            <segue destination="t3M-eD-mWs" kind="show" identifier="CourseFileSegue" id="0iU-Jp-5Lo"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="CourseAssignmentCell" rowHeight="121" id="YSs-rr-TTA" customClass="CourseAssignmentCell">
@@ -514,6 +515,47 @@
             </objects>
             <point key="canvasLocation" x="3574" y="424"/>
         </scene>
+        <!--File Controller-->
+        <scene sceneID="dok-H3-x6e">
+            <objects>
+                <viewController id="t3M-eD-mWs" customClass="FileController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="c1i-1L-baU"/>
+                        <viewControllerLayoutGuide type="bottom" id="MLP-Ro-7Ww"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="QgK-bm-XZU">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="52n-O0-i1y">
+                                <rect key="frame" x="0.0" y="64" width="600" height="492"/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="deviceRGB"/>
+                            </webView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="52n-O0-i1y" secondAttribute="trailing" id="7Mo-yJ-MQm"/>
+                            <constraint firstItem="52n-O0-i1y" firstAttribute="leading" secondItem="QgK-bm-XZU" secondAttribute="leadingMargin" id="BDc-I2-PRA"/>
+                            <constraint firstItem="52n-O0-i1y" firstAttribute="leading" secondItem="QgK-bm-XZU" secondAttribute="leading" id="InE-ri-JOT"/>
+                            <constraint firstAttribute="trailing" secondItem="52n-O0-i1y" secondAttribute="trailing" id="KX0-1f-dPW"/>
+                            <constraint firstItem="MLP-Ro-7Ww" firstAttribute="top" secondItem="52n-O0-i1y" secondAttribute="bottom" id="bQm-d3-x4g"/>
+                            <constraint firstItem="52n-O0-i1y" firstAttribute="top" secondItem="c1i-1L-baU" secondAttribute="bottom" id="fEd-Ac-aeY"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="7Mo-yJ-MQm"/>
+                                <exclude reference="BDc-I2-PRA"/>
+                            </mask>
+                        </variation>
+                    </view>
+                    <connections>
+                        <outlet property="WebView" destination="52n-O0-i1y" id="hHM-qM-HVd"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="da5-uo-LKW" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3574" y="1265"/>
+        </scene>
         <!--View Controller-->
         <scene sceneID="nbu-9H-gjb">
             <objects>
@@ -530,7 +572,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="s5f-Vi-vbb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3574" y="1181"/>
+            <point key="canvasLocation" x="2690" y="1265"/>
         </scene>
         <!--课程-->
         <scene sceneID="QEr-ml-VHO">
